@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ey.tax.core.dao.PrivilegeDAO">
+    <resultMap id="userResultMap" type="com.ey.tax.model.UserModel">
+        <result property="id" column="user_id"/>
+        <result property="name" column="user_name"/>
+        <result property="enable" column="enable"/>
+        <result property="loginCount" column="login_count"/>
+        <result property="loginStatus" column="login_status" typeHandler="com.ey.tax.common.handler.HasCodeEnumHandler"/>
+        <result property="createman" column="createman"/>
+        <result property="createdate" column="createdate"/>
+        <result property="updateman" column="updateman"/>
+        <result property="updatedate" column="updatedate"/>
+        <result property="headerImg" column="header_img"/>
+        <collection property="roles" resultMap="roleResultMap"/>
+    </resultMap>
+
+    <resultMap id="roleResultMap" type="com.ey.tax.model.RoleModel">
+        <result property="id" column="ROLE_ID"/>
+        <result property="roleName" column="ROLE_NAME"/>
+        <result property="pid" column="ROLE_PID"/>
+        <collection property="permissionModels" resultMap="permissionResultMap"/>
+    </resultMap>
+
+    <resultMap id="permissionResultMap" type="com.ey.tax.model.PermissionModel">
+        <result property="id" column="PER_ID"/>
+        <result property="name" column="per_name"/>
+        <result property="pid" column="per_pid"/>
+        <result property="url" column="per_url"/>
+        <result property="description" column="per_desc"/>
+    </resultMap>
+    
+    <select id="findRolesByUser" parameterType="long" resultMap="roleResultMap">
+        select
+              tsr.id as role_id,
+              tsr.role_name as role_name,
+              tsr.pid as role_pid,
+              tsp.id as per_id,
+              tsp.name as per_name,
+              tsp.pid as per_pid,
+              tsp.url as per_url,
+              tsp.description as per_desc
+        from t_sys_permission tsp
+        left join t_sys_role_permission_ref tsrpr
+        on tsp.id = tsrpr.permission_id
+        left join t_sys_role tsr
+        on tsrpr.role_id = tsr.id
+        left join t_sys_user_role_ref tsurr
+        on tsr.id = tsurr.role_id
+        left join t_sys_user tsu
+        on tsurr.role_id = tsu.id
+        where tsu.id=1;
+    </select>
+
+    <select id="findUserById" parameterType="long" resultMap="userResultMap">
+        SELECT
+            tsu.id as user_id,
+            tsu.username as user_name,
+            tsu.enable,
+            tsu.login_count,
+            tsu.login_status,
+            tsu.createman,
+            tsu.createdate,
+            tsu.updateman,
+            tsu.updatedate,
+            tsu.header_img,
+            tsr.role_name,
+            tsr.pid as ROLE_PID
+        FROM
+            t_sys_role tsr
+        LEFT JOIN t_sys_user_role_ref tsurr ON tsr.id = tsurr.role_id
+        LEFT JOIN t_sys_user tsu ON tsurr.user_id = tsu.id
+        WHERE
+            tsu.id = #{userId};
+    </select>
+
+    <select id="findAllPermissions" resultType="com.ey.tax.entity.SysPermission">
+        select * from t_sys_permission;
+    </select>
+
+</mapper>

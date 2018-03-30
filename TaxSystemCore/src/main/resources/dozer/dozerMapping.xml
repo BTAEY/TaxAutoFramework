@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://dozer.sourceforge.net
+http://dozer.sourceforge.net/schema/beanmapping.xsd">
+    <mapping map-null="false" map-empty-string="false">
+        <class-a>com.ey.tax.vo.UserInfoVo</class-a>
+        <class-b>com.ey.tax.model.UserModel</class-b>
+        <field custom-converter="com.ey.tax.utils.dozer.StringBooleanConverter">
+            <a>accountStatus</a>
+            <b>enable</b>
+        </field>
+    </mapping>
+
+    <mapping map-null="false" map-empty-string="false">
+        <class-a>com.ey.tax.vo.RoleVo</class-a>
+        <class-b>com.ey.tax.model.RoleModel</class-b>
+    </mapping>
+
+    <mapping map-null="false" map-empty-string="false">
+        <class-a>com.ey.tax.vo.MenuVo</class-a>
+        <class-b>com.ey.tax.model.MenuModel</class-b>
+        <field>
+            <a>name</a>
+            <b>menuName</b>
+        </field>
+        <field>
+            <a>url</a>
+            <b>menuUrl</b>
+        </field>
+        <field>
+            <a>level</a>
+            <b>menuLevel</b>
+        </field>
+    </mapping>
+</mappings>

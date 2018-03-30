@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="60" status="WARN">
+    <Properties>
+        <Property name="log-path">logs</Property>
+        <Property name="archive">${log-path}/archive</Property>
+    </Properties>
+    <!--<ThresholdFilter level="trace"/>-->
+    <Appenders>
+        <Console name="Console-Appender" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p] - [%t] (%F:%L) %m%n"/>
+        </Console>
+
+        <RollingFile name="Entire_RollingFile_LOG" fileName="${log-path}/entire.log" filePattern="${log-path}/$${date:yyy-MM}/entire-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p] - [%t] (%F:%L) %m%n"/>
+            <Policies>
+                <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+                <SizeBasedTriggeringPolicy size="300 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${log-path}" maxDepth="2">
+                    <IfFileName glob="*/entire-*.log.gz" />
+                    <IfLastModified age="60d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="TAX_SYSTEM_LOG" fileName="${log-path}/tax_system.log" filePattern="${log-path}/$${date:yyy-MM}/tax-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p] - [%t] (%F:%L) %m%n"/>
+            <Policies>
+                <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${log-path}" maxDepth="2">
+                    <IfFileName glob="*/tax-*.log.gz" />
+                    <IfLastModified age="60d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="SQL_RollingFile_LOG" fileName="${log-path}/sql.log" filePattern="${log-path}/$${date:yyy-MM}/sql-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p] - [%t] (%F:%L) %m%n"/>
+            <Policies>
+                <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${log-path}" maxDepth="2">
+                    <IfFileName glob="*/sql-*.log.gz" />
+                    <IfLastModified age="60d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="WEB_RollingFile_LOG" fileName="${log-path}/web.log" filePattern="${log-path}/$${date:yyy-MM}/web-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p] - [%t] (%F:%L) %m%n"/>
+            <Policies>
+                <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${log-path}" maxDepth="2">
+                    <IfFileName glob="*/web-*.log.gz" />
+                    <IfLastModified age="60d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="PERFORMANCE_RollingFile_LOG" fileName="${log-path}/performance.log" filePattern="${log-path}/$${date:yyy-MM}/performance-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p] - [%t] (%F:%L) %m%n"/>
+            <Policies>
+                <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${log-path}" maxDepth="2">
+                    <IfFileName glob="*/performance-*.log.gz" />
+                    <IfLastModified age="60d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <!--<Logger name="com.os.demo" level="debug" additivity="true">-->
+            <!--<AppenderRef ref="Console-Appender" level="all"/>-->
+            <!--<AppenderRef ref="OS_DEMO_RollingFile_LOG"/>-->
+        <!--</Logger>-->
+
+        <Logger name="com.ey.tax" level="debug" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="TAX_SYSTEM_LOG"/>
+        </Logger>
+
+        <Logger name="com.os.tax.web" level="debug" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="WEB_RollingFile_LOG"/>
+        </Logger>
+
+        <Logger name="org.hibernate.SQL" level="debug" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="SQL_RollingFile_LOG"/>
+        </Logger>
+
+        <Logger name="org.springframework.orm" level="debug" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="SQL_RollingFile_LOG"/>
+        </Logger>
+
+        <Logger name="performance" level="debug" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="PERFORMANCE_RollingFile_LOG"/>
+        </Logger>
+
+        <Root level="${root-level}">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="Entire_RollingFile_LOG"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="webjars/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
+
+</head>
+<body>
+<div id="toolbar" class="row">
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" class="btn btn-primary" value="LogOut"/>
+    </form>
+</div>
+<div id="wrapper">
+    <div class="overlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
+        <ul class="nav sidebar-nav">
+            <li class="sidebar-brand">
+                <a href="#">
+                    Tax Auto System
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <button type="button" class="hamburger is-closed animated fadeInLeft" data-toggle="offcanvas">
+            <span class="hamb-top"></span>
+            <span class="hamb-middle"></span>
+            <span class="hamb-bottom"></span>
+        </button>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                    <h2>Welcome <span th:text="${userInfo.name}"/> !</h2>
+                    <h1>User Information</h1>
+                    <br/>
+                    <nav >
+                        <ul class="user_info_list">
+                            <li>
+                                <div class="col-lg-3">Login Status: </div>
+                                <div class="col-lg-8"><span th:text="${userInfo.loginStatus}"/></div>
+                            </li>
+                            <li>
+                                <div class="col-lg-3">Account Status: </div>
+                                <div class="col-lg-8"><span th:text="${userInfo.accountStatus}"/></div>
+                            </li>
+                            <li>
+                                <div class="col-lg-3">Role: </div>
+                                <div class="col-lg-8"><span th:each="role : ${userInfo.roles}" th:text="${role.roleName}"/>,</div>
+                            </li>
+                            <li>
+                                <div class="col-lg-3">Create Man: </div>
+                                <div class="col-lg-8"><span th:text="${userInfo.createman}"/></div>
+                            </li>
+                            <li>
+                                <div class="col-lg-3">Create Date: </div>
+                                <div class="col-lg-8"><span th:text="${userInfo.createdate}"/></div>
+                            </li>
+                            <li>
+                                <div class="col-lg-3">Update Man: </div>
+                                <div class="col-lg-8"><span th:text="${userInfo.updateman}"/></div>
+                            </li>
+                            <li>
+                                <div class="col-lg-3">Update Date: </div>
+                                <div class="col-lg-8"><span th:text="${#dates.format(userInfo.updatedate,'yyyy-MM-dd HH:mm:ss')}"/></div>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<script src="webjars/jquery/jquery.min.js"></script>
+<script src="webjars/bootstrap/js/bootstrap.min.js"></script>
+<script src="plugins/mymenu/jquery-mymenu.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var trigger = $('.hamburger'),
+                overlay = $('.overlay'),
+                isClosed = false;
+
+        trigger.click(function () {
+            hamburger_cross();
+        });
+
+        function hamburger_cross() {
+
+            if (isClosed == true) {
+                overlay.hide();
+                trigger.removeClass('is-open');
+                trigger.addClass('is-closed');
+                isClosed = false;
+            } else {
+                overlay.show();
+                trigger.removeClass('is-closed');
+                trigger.addClass('is-open');
+                isClosed = true;
+            }
+        }
+
+        $('[data-toggle="offcanvas"]').click(function () {
+            $('#wrapper').toggleClass('toggled');
+        });
+
+        $("#sidebar-wrapper").mymenu({url:'menu/load'});
+    });
+</script>
+</body>
+</html>

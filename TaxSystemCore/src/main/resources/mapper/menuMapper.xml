@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ey.tax.core.dao.MenuDAO">
+    <resultMap id="menuResultMap" type="com.ey.tax.model.MenuModel">
+        <result property="id" column="menu_id"/>
+        <result property="pid" column="menu_pid"/>
+        <result property="menuName" column="menu_name"/>
+        <result property="menuUrl" column="menu_url"/>
+        <result property="menuLevel" column="menu_level"/>
+        <result property="menuOrder" column="menu_order"/>
+    </resultMap>
+
+    <select id="findMenuItemsByUserId" parameterType="long" resultMap="menuResultMap">
+        select
+        tsm.id as menu_id,
+        tsm.pid as menu_pid,
+        tsm.menu_name,
+        tsm.menu_url,
+        tsm.description,
+        tsm.menu_level,
+        tsm.menu_order
+        from t_sys_menu tsm
+        left join t_sys_role_menu_ref tsrmr
+        on tsm.id = tsrmr.menu_id
+        left join t_sys_user_role_ref tsurr
+        on tsurr.role_id = tsrmr.role_id
+        left join t_sys_user tsu
+        on tsu.id = tsurr.user_id
+        where tsu.id = #{userId};
+    </select>
+
+</mapper>

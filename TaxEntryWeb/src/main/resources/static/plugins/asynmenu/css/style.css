@@ -1,0 +1,41 @@
+.asynmenu{
+    background-image:url(../images/menu_bg.jpg);
+}
+
+.asynmenu_ul{
+    margin:0;
+    padding:6px;
+}
+
+.asynmenu_li{
+    background-image:url(../images/menu_bt.jpg);
+    width:150px;
+    list-style: none;
+    bottom: 2px ;
+    background-repeat:no-repeat;
+    text-align: center;
+}
+
+.collapse_close{
+    background-image:url(../images/collapsed_yes.gif);
+    width:11px;
+    height:12px;
+    float:right;
+    display:block;
+}
+.collapse_open{
+    background-image:url(../images/collapsed_no.gif);
+    width:11px;
+    height:12px;
+    float:right;
+    display:block;
+}
+.waitingData{
+    background-image:url(../images/busying.gif);
+    width:16px;
+    height:16px;
+    display:none;
+    position:relative;
+    left:70px;
+    top:180px;
+}
