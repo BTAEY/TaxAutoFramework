@@ -62,7 +62,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             sysUser.setLoginCount(sysUser.getLoginCount()+1);
             userRepository.saveAndFlush(sysUser);
         } catch (Exception e) {
-            logger.warn("cannot record user login log information.");
+            logger.warn("cannot record user login log information.",e);
         }
 
         if(this.forwardToDestination){

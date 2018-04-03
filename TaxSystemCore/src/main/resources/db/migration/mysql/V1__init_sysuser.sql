@@ -28,8 +28,8 @@ CREATE TABLE if not exists `t_sys_user` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into t_sys_user(id,username,password,enable,login_status,version) values (1,'admin','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
-insert into t_sys_user(id,username,password,enable,login_status,version) values (2,'general','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
+insert into t_sys_user(id,username,password,enable,login_count,version) values (1,'admin','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
+insert into t_sys_user(id,username,password,enable,login_count,version) values (2,'general','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
 
 CREATE TABLE if NOT EXISTS `t_sys_role` (
  `id` bigint(20) NOT NULL AUTO_INCREMENT,
