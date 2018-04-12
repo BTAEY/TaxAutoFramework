@@ -26,6 +26,7 @@ public class LeaveServerImpl implements ILeaveServer {
         leaveInfo.setId(1L);
         // insert to db
 
+
         //start process
         leaveService.startProcess("1");
     }

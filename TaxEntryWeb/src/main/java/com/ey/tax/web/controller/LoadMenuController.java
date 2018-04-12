@@ -30,4 +30,5 @@ public class LoadMenuController {
         List<MenuVo> menuList = menuService.loadMenus(securityUser.getId());
         return JSONUtil.toJsonStr(menuList);
     }
+
 }

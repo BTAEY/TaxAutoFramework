@@ -30,6 +30,9 @@ CREATE TABLE if not exists `t_sys_user` (
 
 insert into t_sys_user(id,username,password,enable,login_count,version) values (1,'admin','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
 insert into t_sys_user(id,username,password,enable,login_count,version) values (2,'general','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
+insert into t_sys_user(id,username,password,enable,login_count,version) values (3,'submitter','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
+insert into t_sys_user(id,username,password,enable,login_count,version) values (4,'maker','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
+insert into t_sys_user(id,username,password,enable,login_count,version) values (5,'approver','5f4dcc3b5aa765d61d8327deb882cf99',1,0,0);
 
 CREATE TABLE if NOT EXISTS `t_sys_role` (
  `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -58,6 +61,9 @@ CREATE TABLE IF NOT EXISTS `t_sys_org_user_ref` (
 
 insert into t_sys_org_user_ref(org_id,user_id,version) values (1,1,0);
 insert into t_sys_org_user_ref(org_id,user_id,version) values (1,2,0);
+insert into t_sys_org_user_ref(org_id,user_id,version) values (1,3,0);
+insert into t_sys_org_user_ref(org_id,user_id,version) values (1,4,0);
+insert into t_sys_org_user_ref(org_id,user_id,version) values (1,5,0);
 
 CREATE TABLE IF NOT EXISTS `t_sys_user_role_ref` (
  `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -69,6 +75,9 @@ CREATE TABLE IF NOT EXISTS `t_sys_user_role_ref` (
 
 insert into t_sys_user_role_ref(user_id,role_id,version) values (1,1,0);
 insert into t_sys_user_role_ref(user_id,role_id,version) values (2,2,0);
+insert into t_sys_user_role_ref(user_id,role_id,version) values (3,2,0);
+insert into t_sys_user_role_ref(user_id,role_id,version) values (4,2,0);
+insert into t_sys_user_role_ref(user_id,role_id,version) values (5,2,0);
 
 CREATE TABLE if not EXISTS `t_sys_permission` (
  `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -111,11 +120,15 @@ CREATE TABLE if not EXISTS `t_sys_menu` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
-insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (1,0,'System Management',NULL,'/admin/menu/system',1,1,'系统管理菜单');
-insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (2,0,'User Management',1,'/admin/menu/user',2,1,'用户管理菜单');
-insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (3,0,'Permission Management',1,'/admin/menu/permission',2,2,'权限管理菜单');
-insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (4,0,'Role Management',1,'/admin/menu/role',2,3,'角色管理菜单');
-insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (5,0,'Role Management',1,'/admin/menu/organization',2,4,'组织管理菜单');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (1,0,'系统管理',NULL,'/admin/menu/system',1,1,'系统管理菜单');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (2,0,'用户管理',1,'/admin/menu/user',2,1,'用户管理菜单');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (3,0,'权限管理',1,'/admin/menu/permission',2,2,'权限管理菜单');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (4,0,'角色管理',1,'/admin/menu/role',2,3,'角色管理菜单');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (5,0,'组织管理',1,'/admin/menu/organization',2,4,'组织管理菜单');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (6,0,'工作流管理',NULL,'',1,2,'工作流管理');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (7,0,'流程列表',6,'/workflowlist',1,2,'工作流管理');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (8,0,'发起流程',6,'/workflow/start',2,1,'流程发起菜单');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (9,0,'待办事项',6,'/workflow/pending',2,2,'待办事项菜单');
 
 CREATE TABLE if not EXISTS `t_sys_role_menu_ref` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -130,4 +143,9 @@ insert into t_sys_role_menu_ref(role_id,menu_id,version) values (1,2,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (1,3,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (1,4,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (1,5,0);
+insert into t_sys_role_menu_ref(role_id,menu_id,version) values (1,6,0);
+insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,6,0);
+insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,7,0);
+insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,8,0);
+insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,9,0);
 

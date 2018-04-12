@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>工作流管理</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
+    <link rel="stylesheet" href="webjars/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/navigation.css}" />
+</head>
+<body>
+    <div th:replace="fragments/navigation::navigation"></div>
+
+    <div class="container">
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>
+                    <label>工作流名称</label>
+                </th>
+                <th>
+                    <label>描述</label>
+                </th>
+                <th>
+                    <label>流程定义内容</label>
+                </th>
+                <th>
+                    <label>流程定义图</label>
+                </th>
+                <th>
+                    <label>部署</label>
+                </th>
+                <th>
+                    <label>操作</label>
+                </th>
+            </tr>
+            <th:block th:each="workflow,stat : ${workflows}">
+                <tr th:attr="data-deploymentId=${workflow.deploymentId}, data-workflowKey=${workflow.key}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${workflow.name}"></td>
+                    <td th:text="${workflow.description}"></td>
+                    <td>
+                        <a href="javascript:void(0);" class="viewWfSource" th:text="${workflow.resourceName}"></a>
+                    </td>
+                    <td>
+                        <a href="javascript:void(0);" class="viewWfImg" th:text="${workflow.resourcePng}"></a>
+                    </td>
+                    <td>
+                        <a href="javascript:void(0);" class="wfDeploy">部署</a>
+                    </td>
+                    <td>
+                        <a th:href="@{/taxPayment/step_1/{defineId}(defineId=${workflow.defineId})}">选择</a>
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+        <div class="modal fade" id="calModal" style="text-align: center;" tabindex="-1" role="dialog" aria-labelledby="calModalLabel">
+            <div class="modal-dialog" style="display:inline-block;width:auto;" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        $(".viewWfImg").click(function(){
+            var deploymentId = $(this).parent().parent().data("deploymentid");
+            $.get({
+                url:'/workflow/viewImage/'+deploymentId,
+                dataType:'text',
+                success:function(data){
+                    var viewImg = document.createElement("img");
+                    $(viewImg).attr("src","data:image/jpeg;base64,"+data);
+                    showModal.call(viewImg,"calModal");
+                }
+            });
+        });
+
+        $(".viewWfSource").click(function(){
+            var deploymentId = $(this).parent().parent().data("deploymentid");
+            $.get({
+                url:'/workflow/viewResource/'+deploymentId,
+                dataType:'text',
+                success:function(data){
+                    console.log("data = "+data);
+                    var viewblockQuote = document.createElement("blockquote");
+                    $(viewblockQuote).html(data);
+                    showModal.call(viewblockQuote,"calModal");
+                }
+            });
+        });
+
+        $(".wfDeploy").click(function (event) {
+            event.preventDefault();
+            var workflowKey = $(this).parent().parent().data("workflowkey");
+            $.get({
+                url:'/workflow/deploy/'+workflowKey,
+                dataType:'json',
+                success:function(data){
+                    console.log("data = "+data);
+                    var p = document.createElement("p");
+                    $(p).html(data);
+                    showModal.call(p,"calModal");
+                }
+            });
+        });
+
+        var showModal = function(modalId){
+            var target = $(this);
+            $("#"+modalId).on("show.bs.modal",function(event){
+                var modal = $(this);
+                modal.find(".modal-body").append(target);
+                modal.off("show.bs.modal");
+            });
+            $('#'+modalId).on('hidden.bs.modal', function () {
+                var modal = $(this);
+                modal.data('bs.modal',null);
+                modal.find(".modal-body").children().remove();
+            });
+            $('#'+modalId).modal();
+        }
+    </script>
+</body>
+</html>

@@ -18,5 +18,7 @@ public interface PrivilegeDAO {
 
     UserModel findUserById(Long userId);
 
+    List<UserModel> findAllUserList();
+
     List<SysPermission> findAllPermissions();
 }

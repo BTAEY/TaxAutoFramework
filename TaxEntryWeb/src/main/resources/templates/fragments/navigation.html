@@ -1,0 +1,28 @@
+<div class="navbar-header" th:fragment="navigation">
+    <div class="navbar-header__brand">
+        <h2 id="logo" style="cursor:pointer;">税务自动化管理系统</h2>
+        <ul class="navbar-header__brand__item clearfix">
+            <li class="navbar-header__avatar">admin</li>
+            <li>
+                <form th:action="@{/logout}" method="post">
+                    <input type="submit" class="btn btn-primary" value="退出"/>
+                </form>
+            </li>
+        </ul>
+    </div>
+    <nav class="navbar-header__container">
+        <a class="navbar-header__container__item">系统管理</a>
+        <a class="navbar-header__container__item">工作任务管理</a>
+        <a class="navbar-header__container__item">税种管理</a>
+        <a class="navbar-header__container__item">税务风险管理</a>
+        <a class="navbar-header__container__item">统计分析</a>
+        <a class="navbar-header__container__item">税务筹划</a>
+    </nav>
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    <script>
+        $("#logo").click(function(evt){
+            window.location.href = "/";
+        });
+    </script>
+</div>

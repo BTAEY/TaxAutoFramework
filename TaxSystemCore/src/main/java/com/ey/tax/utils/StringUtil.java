@@ -87,7 +87,8 @@ public class StringUtil extends StringUtils{
      * @return
      */
     public static String getFilename(String path) {
-        return org.springframework.util.StringUtils.getFilename(path);
+        String cleanedPath = org.springframework.util.StringUtils.cleanPath(path);
+        return org.springframework.util.StringUtils.getFilename(cleanedPath);
     }
 
     /**

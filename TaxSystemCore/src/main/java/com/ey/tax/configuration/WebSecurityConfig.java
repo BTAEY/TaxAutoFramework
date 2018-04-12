@@ -5,6 +5,7 @@ import com.ey.tax.security.LoginSuccessHandler;
 import com.ey.tax.security.CustomLogoutSuccessHandler;
 import com.ey.tax.service.MyFilterSecurityInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -18,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.MultipartFilter;
 
 /**
  * Created by zhuji on 2/9/2018.
@@ -47,6 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout().logoutSuccessHandler(logoutSuccessHandler)
                 .permitAll()
         ;
+        http.headers().frameOptions().disable();
         http.sessionManagement().maximumSessions(1);
         http.addFilterBefore(myFilterSecurityInterceptor, FilterSecurityInterceptor.class);
         http.exceptionHandling().accessDeniedPage("/403").authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"));
@@ -86,4 +90,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().ignoring().antMatchers("/**/*.css")
                 .and().ignoring().antMatchers("/**/*.woff");
     }
+
 }

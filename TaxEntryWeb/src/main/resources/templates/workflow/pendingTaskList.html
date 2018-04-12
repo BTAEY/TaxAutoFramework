@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>待办流程 - 录入</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/navigation.css}" />
+    <link th:href="@{/plugins/datepicker/css/bootstrap-datetimepicker.css}" rel="stylesheet"/>
+</head>
+<body>
+    <div th:replace="fragments/navigation::navigation"></div>
+
+    <div class="container">
+        <div class="container">
+            <table class="table">
+                <tr>
+                    <th>#</th>
+                    <th>
+                        <label>待办任务名称</label>
+                    </th>
+                    <th>
+                        <label>当前待办操作人</label>
+                    </th>
+                    <th>
+                        <label>创建时间</label>
+                    </th>
+                    <th>
+                        <label>操作</label>
+                    </th>
+                </tr>
+                <th:block th:each="task,taskStat : ${pendingTasks}">
+                    <tr>
+                        <td th:text="${taskStat.index+1}"></td>
+                        <td th:text="${task.taskName}"></td>
+                        <td th:text="${task.assignee}"></td>
+                        <td th:text="${task.createDate}"></td>
+                        <td>
+                            <a th:href="@{/taxPayment/processTask/{procId}(procId=${task.procId})}">办理</a>
+                        </td>
+                    </tr>
+                </th:block>
+            </table>
+        </div>
+    </div>
+
+    <script th:src="@{/plugins/datepicker/js/bootstrap-datetimepicker.min.js}"></script>
+    <script>
+        $(".form_date").datetimepicker({
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0,
+            format:'dd/mm/yyyy'
+        })
+    </script>
+</body>
+</html>

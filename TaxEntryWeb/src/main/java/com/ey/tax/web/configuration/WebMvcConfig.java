@@ -32,6 +32,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
                 .setCachePeriod(60 * 60 * 24 * 365) /* one year */
                 .resourceChain(true)
                 .addResolver(versionResourceResolver);
+        registry.addResourceHandler("/favicon.ico").addResourceLocations("/").setCachePeriod(0);
     }
 
     @Bean
