@@ -22,6 +22,12 @@ public class WorkflowInfo {
 
     private String resourcePng;
 
+    private Long duration;
+
+    private Date startTime;
+
+    private Date endTime;
+
     public String getDefineId() {
         return defineId;
     }
@@ -84,5 +90,29 @@ public class WorkflowInfo {
 
     public void setResourcePng(String resourcePng) {
         this.resourcePng = resourcePng;
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 }

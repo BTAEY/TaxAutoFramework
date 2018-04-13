@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>工作流管理</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/navigation.css}" />
+</head>
+<body>
+    <div th:replace="fragments/navigation::navigation"></div>
+
+    <div class="container">
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>
+                    <label>工作流名称</label>
+                </th>
+                <th>
+                    <label>描述</label>
+                </th>
+                <th>
+                    <label>开始时间</label>
+                </th>
+                <th>
+                    <label>结束时间</label>
+                </th>
+                <th>
+                    <label>执行时间</label>
+                </th>
+            </tr>
+            <th:block th:each="workflow,stat : ${workflows}">
+                <tr th:attr="data-deploymentId=${workflow.deploymentId}, data-workflowKey=${workflow.key}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${workflow.name}"></td>
+                    <td th:text="${workflow.description}"></td>
+                    <td th:text="${workflow.startTime}"></td>
+                    <td th:text="${workflow.endTime}"></td>
+                    <td th:text="${workflow.duration}"></td>
+                </tr>
+            </th:block>
+        </table>
+        <div class="modal fade" id="calModal" style="text-align: center;" tabindex="-1" role="dialog" aria-labelledby="calModalLabel">
+            <div class="modal-dialog" style="display:inline-block;width:auto;" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

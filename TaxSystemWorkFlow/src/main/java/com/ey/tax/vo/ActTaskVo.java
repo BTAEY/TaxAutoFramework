@@ -16,6 +16,8 @@ public class ActTaskVo {
 
     private Date createDate;
 
+    private String redirectUrl;
+
     public String getProcId() {
         return procId;
     }
@@ -54,5 +56,13 @@ public class ActTaskVo {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 }

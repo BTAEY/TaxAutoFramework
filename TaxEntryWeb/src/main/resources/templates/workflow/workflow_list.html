@@ -51,7 +51,7 @@
                         <a href="javascript:void(0);" class="wfDeploy">部署</a>
                     </td>
                     <td>
-                        <a th:href="@{/taxPayment/step_1/{defineId}(defineId=${workflow.defineId})}">选择</a>
+                        <a class="startWf" th:href="@{/workflow/start/{wfKey}(wfKey=${workflow.key})}">启动</a>
                     </td>
                 </tr>
             </th:block>
@@ -104,6 +104,21 @@
             var workflowKey = $(this).parent().parent().data("workflowkey");
             $.get({
                 url:'/workflow/deploy/'+workflowKey,
+                dataType:'json',
+                success:function(data){
+                    console.log("data = "+data);
+                    var p = document.createElement("p");
+                    $(p).html(data);
+                    showModal.call(p,"calModal");
+                }
+            });
+        });
+
+        $(".startWf").click(function(){
+            event.preventDefault();
+            var workflowKey = $(this).parent().parent().data("workflowkey");
+            $.get({
+                url:'/workflow/start/'+workflowKey,
                 dataType:'json',
                 success:function(data){
                     console.log("data = "+data);

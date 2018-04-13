@@ -16,10 +16,13 @@
 
     <div class="container">
         <div class="row">
-            <form class="form-horizontal" action="#" th:action="@{/startTaxPayment_workflow}" method="post" enctype="multipart/form-data">
+            <form class="form-horizontal" action="#" th:action="@{/taxPayment/processTask/submit}" method="post" enctype="multipart/form-data">
+                <label>申请人基本信息</label>
+                <hr/>
+                <input type="hidden" name="taskId" th:value="${taskId}"/>
                 <div class="form-group">
                     <label for="applier">申请人</label>
-                    <input type="text" class="form-control" name="applier" id="applier" placeholder="申请人" th:value="${applier}"/>
+                    <input type="text" class="form-control" name="applier" id="applier" placeholder="申请人" th:value="${submitter.applier}"/>
                 </div>
                 <div class="form-group">
                     <label for="applyDate">申请日期</label>
@@ -34,13 +37,22 @@
                     <input type="text" class="form-control" id="wfname" name="wfname" placeholder="流程名称" th:value="${wfname}"/>
                 </div>
                 <div class="form-group">
-                    <label for="desc">描述</label>
-                    <textarea id="desc"></textarea>
+                    <label for="station">申请人岗位</label>
+                    <input type="text" class="form-control" name="station" id="station" placeholder="申请人岗位" th:value="${submitter.station}"/>
+                </div>
+                <div class="form-group">
+                    <label for="organization">申请人机构</label>
+                    <input type="text" class="form-control" name="organization" id="organization" placeholder="申请人机构" th:value="${submitter.organization}"/>
                 </div>
                 <div class="form-group">
                     <label for="inputFile">附件上传</label>
                     <input type="file" id="inputFile" name="file"/>
                 </div>
+                <div class="form-group">
+                    <label>批注</label>
+                    <textarea name="comment"></textarea>
+                </div>
+
                 <button type="submit" class="btn btn-default">Submit</button>
             </form>
         </div>

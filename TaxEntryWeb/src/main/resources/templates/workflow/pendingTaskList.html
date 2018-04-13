@@ -39,7 +39,7 @@
                         <td th:text="${task.assignee}"></td>
                         <td th:text="${task.createDate}"></td>
                         <td>
-                            <a th:href="@{/taxPayment/processTask/{procId}(procId=${task.procId})}">办理</a>
+                            <a th:href="@{/{redirectUrl}(redirectUrl=${task.redirectUrl})}">办理</a>
                         </td>
                     </tr>
                 </th:block>
