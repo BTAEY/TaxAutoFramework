@@ -12,6 +12,10 @@ import org.springframework.stereotype.Component;
 public class CustomActivitiConfiguration implements ProcessEngineConfigurationConfigurer
 {
 
+    /**
+     * 解决前台显示流程图片乱码问题
+     * @param processEngineConfiguration
+     */
     @Override
     public void configure(SpringProcessEngineConfiguration processEngineConfiguration) {
         processEngineConfiguration.setActivityFontName("宋体");

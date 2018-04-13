@@ -1,5 +1,8 @@
 package com.ey.tax.service;
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.http.HtmlUtil;
+import com.ey.tax.utils.PropertiesUtil;
 import com.ey.tax.utils.StringUtil;
 import com.ey.tax.vo.WorkflowInfo;
 import org.activiti.engine.HistoryService;
@@ -18,8 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,34 +45,123 @@ public class WorkflowService {
     @Autowired
     private HistoryService historyService;
 
+    /**
+     * 根据 process key 启动工作流
+     * @param processName
+     * @return
+     */
     public ProcessInstance startProcess(String processName){
         return runtimeService.startProcessInstanceByKey(processName);
     }
 
+    /**
+     * 根据 process key 启动工作流 , 带启动参数
+     * @param processName
+     * @param variables
+     * @return
+     */
     public ProcessInstance startProcess(String processName,Map<String, Object> variables){
         return runtimeService.startProcessInstanceByKey(processName,variables);
     }
 
-    //查询待办任务
+    public void deploy(String wfKey){
+        String resourcePath = PropertiesUtil.getString(wfKey);
+        repositoryService.createDeployment().addClasspathResource(resourcePath).deploy();
+    }
+
+    /**
+     * 查询指定用户的待办任务
+     * @param userId
+     * @return
+     */
     public List<Task> findTaskByUserId(String userId){
         return taskService.createTaskQuery().taskCandidateOrAssigned(userId).list();
     }
 
+    /**
+     * 查找所有的工作流定义
+     * @return
+     */
     public List<WorkflowInfo> findAllDefinedWorkflowList(){
         List<ProcessDefinition> procList = repositoryService.createProcessDefinitionQuery().latestVersion().list();
-        List<WorkflowInfo> workflowInfoList = procList.stream().map(proc -> {
-            WorkflowInfo workflowInfo = new WorkflowInfo();
-            workflowInfo.setDefineId(proc.getId());
-            workflowInfo.setName(proc.getName());
-            workflowInfo.setKey(proc.getKey());
-            workflowInfo.setDescription(proc.getDescription());
-            workflowInfo.setDeploymentId(proc.getDeploymentId());
-            workflowInfo.setResourceName(StringUtil.getFilename(proc.getResourceName()));
-            workflowInfo.setResourcePng(StringUtil.getFilename(proc.getDiagramResourceName()));
+        List<WorkflowInfo> workflowInfoList = procList.stream().map(processDefinition -> {
+            WorkflowInfo workflowInfo = WorkflowInfo.createBuilder()
+                    .defineId(processDefinition.getId())
+                    .name(processDefinition.getName())
+                    .key(processDefinition.getKey())
+                    .deploymentId(processDefinition.getDeploymentId())
+                    .resourceName(StringUtil.getFilename(processDefinition.getResourceName()))
+                    .resourcePng(StringUtil.getFilename(processDefinition.getDiagramResourceName()))
+                    .build();
             return workflowInfo;
         }).collect(Collectors.toList());
         return workflowInfoList;
     }
+
+    /**
+     * 查看流程定义图片
+     * @param deploymentId
+     * @return
+     */
+    public InputStream getWorkFLowImage(String deploymentId){
+        Optional<String> imageNameOptional = repositoryService.getDeploymentResourceNames(deploymentId).stream().filter(s -> s.indexOf(".png") >= 0).findFirst();
+        InputStream in = repositoryService.getResourceAsStream(deploymentId,imageNameOptional.get());
+        return in;
+    }
+
+    /**
+     * 查看流程定义资源文件
+     * @param deploymentId
+     * @return
+     */
+    public String getWorkFlowResource(String deploymentId){
+        Optional<String> bpmnNameOptional = repositoryService.getDeploymentResourceNames(deploymentId).stream().filter(s -> s.indexOf(".xml") >= 0).findFirst();
+        InputStream in = repositoryService.getResourceAsStream(deploymentId,bpmnNameOptional.get());
+        String content = HtmlUtil.escape(IoUtil.read(in, Charset.forName("UTF-8")));
+        return content;
+    }
+
+    /**
+     * 查找工作流基本信息
+     * @param wfKey
+     * @return
+     */
+    public WorkflowInfo getWorkFlowInfo(String wfKey){
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(wfKey).singleResult();
+        if(processDefinition != null){
+            WorkflowInfo workflowInfo = WorkflowInfo.createBuilder()
+                    .defineId(processDefinition.getId())
+                    .name(processDefinition.getName())
+                    .key(processDefinition.getKey())
+                    .deploymentId(processDefinition.getDeploymentId())
+                    .resourceName(StringUtil.getFilename(processDefinition.getResourceName()))
+                    .resourcePng(StringUtil.getFilename(processDefinition.getDiagramResourceName()))
+                    .build();
+            return workflowInfo;
+        }
+        return null;
+    }
+
+    /**
+     * 获取所有以完结工作流
+     * @return
+     */
+    public List<WorkflowInfo> getHistoricWorkFlowInfos(){
+        List<HistoricProcessInstance> processInstances = historyService.createHistoricProcessInstanceQuery()
+                .finished().orderByProcessInstanceId().asc().list();
+
+        List<WorkflowInfo> workflowInfoList = processInstances.stream().map(i -> {
+            WorkflowInfo workflowInfo = WorkflowInfo.createBuilder()
+                    .name(i.getName())
+                    .duration(i.getDurationInMillis()/1000)
+                    .startTime(i.getStartTime())
+                    .endTime(i.getEndTime())
+                    .build();
+            return workflowInfo;
+        }).collect(Collectors.toList());
+        return workflowInfoList;
+    }
+
 
     public String getProcessName(String procDefineId){
         ProcessDefinition processDefinition = repositoryService.getProcessDefinition(procDefineId);
@@ -76,12 +171,10 @@ public class WorkflowService {
         return "";
     }
 
-    public void deploy(){
-    }
-
     /**
      * 查看流程实例是否结束
-     *
+     * @param procId
+     * @return
      */
     public Boolean isFinished(String procId){
         ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(procId).singleResult();

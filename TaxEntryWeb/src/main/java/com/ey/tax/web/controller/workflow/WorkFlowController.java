@@ -2,24 +2,16 @@ package com.ey.tax.web.controller.workflow;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.http.HtmlUtil;
+import cn.hutool.json.JSONUtil;
 import com.ey.tax.security.SecurityUser;
 import com.ey.tax.service.WorkflowService;
-import com.ey.tax.utils.PropertiesUtil;
 import com.ey.tax.vo.ActTaskVo;
 import com.ey.tax.vo.WorkflowInfo;
-import org.activiti.bpmn.model.BpmnModel;
+import com.ey.tax.web.core.ResponseData;
 import org.activiti.engine.FormService;
-import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
 import org.activiti.engine.form.TaskFormData;
-import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.repository.ProcessDefinition;
-import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
-import org.activiti.image.ProcessDiagramGenerator;
-import org.activiti.image.impl.DefaultProcessDiagramGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -54,32 +44,26 @@ public class WorkFlowController {
     @Autowired
     private FormService formService;
 
-    @Autowired
-    private RuntimeService runtimeService;
-
-    @Autowired
-    private HistoryService historyService;
-
     @RequestMapping(value = "/workflow/deploy/{wfKey}")
     @ResponseBody
     public String deploy(@PathVariable String wfKey){
-        String resourcePath = PropertiesUtil.getString(wfKey);
-        repositoryService.createDeployment().addClasspathResource(resourcePath).deploy();
-        return "流程【"+wfKey+"】部署成功";
+        try {
+            workflowService.deploy(wfKey);
+            ResponseData responseData = new ResponseData(ResponseData.Status.SUCCESS);
+            responseData.setMessage("流程【"+wfKey+"】部署成功");
+            return JSONUtil.toJsonStr(responseData);
+        } catch (Exception e) {
+            logger.error("流程部署失败",e);
+            ResponseData responseData = new ResponseData(ResponseData.Status.FAILED);
+            responseData.setMessage("流程【"+wfKey+"】部署失败");
+            return JSONUtil.toJsonStr(responseData);
+        }
     }
 
     @RequestMapping(value="/workflow/viewImage/{deploymentId}")
     @ResponseBody
     public String viewImage(@PathVariable String deploymentId){
-        Optional<String> imageNameOptional = repositoryService.getDeploymentResourceNames(deploymentId).stream().filter(s -> s.indexOf(".png") >= 0).findFirst();
-        InputStream in = repositoryService.getResourceAsStream(deploymentId,imageNameOptional.get());
-
-//        ProcessInstance pi = runtimeService.createProcessInstanceQuery().deploymentId(deploymentId).singleResult();
-//        BpmnModel bpmnModel = repositoryService.getBpmnModel(pi.getProcessDefinitionId());
-//        List<String> activeIds = runtimeService.getActiveActivityIds(pi.getId());
-//        ProcessDiagramGenerator p = new DefaultProcessDiagramGenerator();
-//        InputStream is = p.generateDiagram(bpmnModel,"png",activeIds, Collections.emptyList(),"","宋体","宋体",null,1.0);
-
+        InputStream in = workflowService.getWorkFLowImage(deploymentId);
         byte[] bytes = IoUtil.readBytes(in);
         String valueStr = Base64.encode(bytes, Charset.forName("UTF-8"));
         return valueStr;
@@ -88,22 +72,24 @@ public class WorkFlowController {
     @RequestMapping(value="/workflow/viewResource/{deploymentId}")
     @ResponseBody
     public String viewResource(@PathVariable String deploymentId){
-        Optional<String> bpmnNameOptional = repositoryService.getDeploymentResourceNames(deploymentId).stream().filter(s -> s.indexOf(".xml") >= 0).findFirst();
-        InputStream in = repositoryService.getResourceAsStream(deploymentId,bpmnNameOptional.get());
-        String content = HtmlUtil.escape(IoUtil.read(in,Charset.forName("UTF-8")));
+        String content = workflowService.getWorkFlowResource(deploymentId);
         return content;
     }
 
     @RequestMapping(value="/workflow/start/{wfKey}")
     @ResponseBody
     public String startWf(@PathVariable String wfKey){
-        ProcessDefinition processDefinition =  repositoryService.createProcessDefinitionQuery().processDefinitionKey(wfKey).singleResult();
+        WorkflowInfo workflowInfo = workflowService.getWorkFlowInfo(wfKey);
         try {
             workflowService.startProcess(wfKey);
-            return "流程【"+processDefinition.getName()+"】启动成功";
+            ResponseData responseData = new ResponseData(ResponseData.Status.SUCCESS);
+            responseData.setMessage("流程【"+workflowInfo.getName()+"】启动成功");
+            return JSONUtil.toJsonStr(responseData);
         } catch (Exception e) {
-            logger.error("流程【"+processDefinition.getName()+"】启动失败",e);
-            return "流程【"+processDefinition.getName()+"】启动失败";
+            logger.error("流程【"+workflowInfo.getName()+"】启动失败",e);
+            ResponseData responseData = new ResponseData(ResponseData.Status.FAILED);
+            responseData.setMessage("流程【"+workflowInfo.getName()+"】启动失败");
+            return JSONUtil.toJsonStr(responseData);
         }
     }
 
@@ -139,18 +125,7 @@ public class WorkFlowController {
 
     @RequestMapping(value = "/workflow/completed" , method = RequestMethod.GET)
     public ModelAndView completedWorkflows(){
-        List<HistoricProcessInstance> processInstances = historyService.createHistoricProcessInstanceQuery()
-                .finished().orderByProcessInstanceId().asc().list();
-
-        List<WorkflowInfo> workflowInfoList = processInstances.stream().map(i -> {
-            WorkflowInfo workflowInfo = new WorkflowInfo();
-            workflowInfo.setName(i.getName());
-            workflowInfo.setDescription(i.getDescription());
-            workflowInfo.setDuration(i.getDurationInMillis());
-            workflowInfo.setStartTime(i.getStartTime());
-            workflowInfo.setEndTime(i.getEndTime());
-            return workflowInfo;
-        }).collect(Collectors.toList());
+        List<WorkflowInfo> workflowInfoList = workflowService.getHistoricWorkFlowInfos();
         ModelAndView mav = new ModelAndView("workflow/completed_workflow_list");
         mav.addObject("workflows",workflowInfoList);
         return mav;

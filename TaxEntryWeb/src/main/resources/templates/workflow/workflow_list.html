@@ -106,9 +106,9 @@
                 url:'/workflow/deploy/'+workflowKey,
                 dataType:'json',
                 success:function(data){
-                    console.log("data = "+data);
+                    console.log("data = "+JSON.stringify(data));
                     var p = document.createElement("p");
-                    $(p).html(data);
+                    $(p).html(data.message);
                     showModal.call(p,"calModal");
                 }
             });
@@ -121,9 +121,9 @@
                 url:'/workflow/start/'+workflowKey,
                 dataType:'json',
                 success:function(data){
-                    console.log("data = "+data);
+                    console.log("data = "+JSON.stringify(data));
                     var p = document.createElement("p");
-                    $(p).html(data);
+                    $(p).html(data.message);
                     showModal.call(p,"calModal");
                 }
             });
