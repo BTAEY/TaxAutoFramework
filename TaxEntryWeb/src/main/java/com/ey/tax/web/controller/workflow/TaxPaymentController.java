@@ -87,6 +87,7 @@ public class TaxPaymentController implements IAttachmentStoreDelegate {
         submitterInfo.setTaskId(taskId);
         final Map<String,Object> variables = new HashMap<>();
         variables.put("submitter",submitterInfo);
+        variables.put("to","general");
 
         workflowFacadeService.completeTask(taskId,new TaskPropertyResolverAdapter(){
             @Override

@@ -13,13 +13,11 @@
         <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="sid-C4BEF136-4C5D-4411-ADE8-9AFC4AEEA450" sourceRef="sid-7FEAEF94-339D-478A-A2D4-C1FCB2A881AA" targetRef="sid-FB13022A-EE20-4826-8621-689FAF44799D"></sequenceFlow>
     <userTask id="sid-3CCD34D6-099A-44DE-BF7A-E536601F8F34" name="录入表单" activiti:assignee="general" activiti:formKey="taxPayment/forward/registerForm">
       <extensionElements>
         <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="sid-9BCCB8F9-81B0-4A50-9D0B-F435566AC4C5" sourceRef="sid-7FEAEF94-339D-478A-A2D4-C1FCB2A881AA" targetRef="sid-3CCD34D6-099A-44DE-BF7A-E536601F8F34"></sequenceFlow>
     <userTask id="sid-47267CEA-2726-458D-A69D-9616A79881FD" name="审核表单" activiti:assignee="submitter" activiti:formKey="taxPayment/forward/auditForm">
       <extensionElements>
         <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
@@ -38,6 +36,12 @@
     </sequenceFlow>
     <sequenceFlow id="reject" name="拒绝" sourceRef="sid-1F92DD25-19DC-4DA9-8CF8-F84317619890" targetRef="sid-FB13022A-EE20-4826-8621-689FAF44799D">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="to_general" name="给general" sourceRef="sid-7FEAEF94-339D-478A-A2D4-C1FCB2A881AA" targetRef="sid-3CCD34D6-099A-44DE-BF7A-E536601F8F34">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${to=='general'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="to_maker" name="给maker" sourceRef="sid-7FEAEF94-339D-478A-A2D4-C1FCB2A881AA" targetRef="sid-FB13022A-EE20-4826-8621-689FAF44799D">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${to=='maker'}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_TaxPayment2">
@@ -69,10 +73,6 @@
         <omgdi:waypoint x="142.5" y="160.0"></omgdi:waypoint>
         <omgdi:waypoint x="165.0" y="160.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-C4BEF136-4C5D-4411-ADE8-9AFC4AEEA450" id="BPMNEdge_sid-C4BEF136-4C5D-4411-ADE8-9AFC4AEEA450">
-        <omgdi:waypoint x="265.0" y="160.0"></omgdi:waypoint>
-        <omgdi:waypoint x="405.0" y="160.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-D3BBE270-08C2-4637-82A9-BDA634877558" id="BPMNEdge_sid-D3BBE270-08C2-4637-82A9-BDA634877558">
         <omgdi:waypoint x="505.0" y="160.0"></omgdi:waypoint>
         <omgdi:waypoint x="567.5" y="160.0"></omgdi:waypoint>
@@ -91,6 +91,10 @@
         <omgdi:waypoint x="856.9485294117648" y="213.0514705882353"></omgdi:waypoint>
         <omgdi:waypoint x="505.0" y="166.59928656361473"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_maker" id="BPMNEdge_to_maker">
+        <omgdi:waypoint x="265.0" y="160.0"></omgdi:waypoint>
+        <omgdi:waypoint x="405.0" y="160.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-127FF44E-C843-4E1C-8B11-5ECFD048098A" id="BPMNEdge_sid-127FF44E-C843-4E1C-8B11-5ECFD048098A">
         <omgdi:waypoint x="760.0" y="205.0"></omgdi:waypoint>
         <omgdi:waypoint x="807.5" y="205.0"></omgdi:waypoint>
@@ -101,7 +105,7 @@
         <omgdi:waypoint x="858.68" y="218.68"></omgdi:waypoint>
         <omgdi:waypoint x="505.0" y="285.5469678953627"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-9BCCB8F9-81B0-4A50-9D0B-F435566AC4C5" id="BPMNEdge_sid-9BCCB8F9-81B0-4A50-9D0B-F435566AC4C5">
+      <bpmndi:BPMNEdge bpmnElement="to_general" id="BPMNEdge_to_general">
         <omgdi:waypoint x="215.0" y="200.0"></omgdi:waypoint>
         <omgdi:waypoint x="215.0" y="295.0"></omgdi:waypoint>
         <omgdi:waypoint x="405.0" y="295.0"></omgdi:waypoint>
