@@ -185,10 +185,11 @@ public class WorkflowFacadeService {
 
         List<WorkflowInfo> workflowInfoList = processInstances.stream().map(i -> {
             WorkflowInfo workflowInfo = WorkflowInfo.createBuilder()
-                    .name(i.getName())
+                    .name(i.getProcessDefinitionName())
                     .duration(i.getDurationInMillis() / 1000)
                     .startTime(i.getStartTime())
                     .endTime(i.getEndTime())
+                    .key(i.getProcessDefinitionKey())
                     .build();
             return workflowInfo;
         }).collect(Collectors.toList());

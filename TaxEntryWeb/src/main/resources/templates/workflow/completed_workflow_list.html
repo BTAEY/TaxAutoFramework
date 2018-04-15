@@ -40,7 +40,7 @@
                     <td th:text="${workflow.description}"></td>
                     <td th:text="${workflow.startTime}"></td>
                     <td th:text="${workflow.endTime}"></td>
-                    <td th:text="${workflow.duration}"></td>
+                    <td th:text="|${workflow.duration}s|"></td>
                 </tr>
             </th:block>
         </table>
