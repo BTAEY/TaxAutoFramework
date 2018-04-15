@@ -117,8 +117,8 @@
                 </tr>
                 <th:block th:each="history : ${auditHistory}">
                     <tr>
+                        <td th:text="${history.operator}"></td>
                         <td th:text="${history.taskName}"></td>
-                        <td th:text="${history.action}"></td>
                         <td th:text="${history.comment}"></td>
                     </tr>
                 </th:block>
@@ -136,7 +136,7 @@
             startView: 2,
             minView: 2,
             forceParse: 0,
-            format:'dd/mm/yyyy'
+            format:'mm/dd/yyyy'
         })
     </script>
 </body>

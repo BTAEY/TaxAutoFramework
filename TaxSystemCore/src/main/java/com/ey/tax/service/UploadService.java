@@ -1,14 +1,10 @@
 package com.ey.tax.service;
 
-import com.ey.tax.common.AttachmentEnums;
-import com.ey.tax.core.service.IAttachmentStoreService;
 import com.ey.tax.entity.AttachmentStore;
 import com.ey.tax.exceptions.UploadException;
-import com.ey.tax.utils.FileNameFormatUtil;
 import com.ey.tax.utils.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +12,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +22,8 @@ import java.util.List;
 public class UploadService {
     private Logger logger = LogManager.getLogger();
 
-    public void upload(List<MultipartFile> multipartFiles,IAttachmentStoreDelegate delegate){
+    public List<AttachmentStore> upload(List<MultipartFile> multipartFiles,IAttachmentStoreDelegate delegate){
+        List<AttachmentStore> result = new ArrayList<>();
         try {
             for(MultipartFile file: multipartFiles){
                 byte[] bytes = file.getBytes();
@@ -36,21 +34,25 @@ public class UploadService {
                     dir.mkdirs();
                 }
                 // create the file on server
-//                String originalFileName = file.getOriginalFilename();
-//                String fileExtension = StringUtil.getFilenameExtension(originalFileName);
-//                String name = FileNameFormatUtil.format()+"."+fileExtension;
-
+                String originalName = file.getOriginalFilename();
+                String extension = StringUtil.getFilenameExtension(originalName);
+                if(StringUtil.isEmpty(originalName) || StringUtil.isEmpty(extension)){
+                    continue;
+                }
                 String name = delegate.attachmentName();
-                File serverFile = new File(dir.getAbsolutePath()+File.separator+name);
+                String absolutePath = dir.getAbsolutePath()+File.separator+name+"."+extension;
+                File serverFile = new File(absolutePath);
                 BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(serverFile));
                 outputStream.write(bytes);
                 outputStream.close();
                 logger.info("Server File Location = "+serverFile.getAbsolutePath());
-                delegate.saveAttachmentStore(name,serverFile.getAbsolutePath());
+                AttachmentStore attachmentStore = delegate.saveAttachmentStore(absolutePath);
+                result.add(attachmentStore);
             }
         } catch (IOException e) {
             logger.error("upload file occurs error!",e);
             throw new UploadException("upload file occurs error!",e);
         }
+        return result;
     }
 }

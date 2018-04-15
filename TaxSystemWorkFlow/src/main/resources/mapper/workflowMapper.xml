@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ey.tax.core.dao.WorkFlowDAO">
+
+    <resultMap id="historyCommentResultMap" type="com.ey.tax.model.CommentModel">
+        <result property="id" column="ID_"/>
+        <result property="taskId" column="TASK_ID_"/>
+        <result property="taskName" column="NAME_"/>
+        <result property="procInstId" column="PROC_INST_ID_"/>
+        <result property="comment" column="MESSAGE_"/>
+        <result property="assignee" column="ASSIGNEE_"/>
+    </resultMap>
+
+    <select id="findCommentsByProcInstId" resultMap="historyCommentResultMap">
+        select ahc.ID_, ahc.TASK_ID_, aht.NAME_,ahc.PROC_INST_ID_, ahc.MESSAGE_,aht.ASSIGNEE_ from act_hi_comment ahc
+            left join act_hi_taskinst aht
+            on ahc.TASK_ID_ = aht.ID_
+              where ahc.PROC_INST_ID_=#{procInstId}
+                order by ahc.TASK_ID_
+    </select>
+
+
+</mapper>

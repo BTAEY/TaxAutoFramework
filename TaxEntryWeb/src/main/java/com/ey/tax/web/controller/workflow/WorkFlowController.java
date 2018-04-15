@@ -4,12 +4,11 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONUtil;
 import com.ey.tax.security.SecurityUser;
-import com.ey.tax.service.WorkflowService;
+import com.ey.tax.service.WorkflowFacadeService;
 import com.ey.tax.vo.ActTaskVo;
 import com.ey.tax.vo.WorkflowInfo;
 import com.ey.tax.web.core.ResponseData;
 import org.activiti.engine.FormService;
-import org.activiti.engine.RepositoryService;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.task.Task;
 import org.apache.logging.log4j.LogManager;
@@ -36,10 +35,7 @@ public class WorkFlowController {
     private static final Logger logger = LogManager.getLogger();
 
     @Autowired
-    private WorkflowService workflowService;
-
-    @Autowired
-    private RepositoryService repositoryService;
+    private WorkflowFacadeService workflowFacadeService;
 
     @Autowired
     private FormService formService;
@@ -48,7 +44,7 @@ public class WorkFlowController {
     @ResponseBody
     public String deploy(@PathVariable String wfKey){
         try {
-            workflowService.deploy(wfKey);
+            workflowFacadeService.deploy(wfKey);
             ResponseData responseData = new ResponseData(ResponseData.Status.SUCCESS);
             responseData.setMessage("流程【"+wfKey+"】部署成功");
             return JSONUtil.toJsonStr(responseData);
@@ -63,7 +59,7 @@ public class WorkFlowController {
     @RequestMapping(value="/workflow/viewImage/{deploymentId}")
     @ResponseBody
     public String viewImage(@PathVariable String deploymentId){
-        InputStream in = workflowService.getWorkFLowImage(deploymentId);
+        InputStream in = workflowFacadeService.getWorkFLowImage(deploymentId);
         byte[] bytes = IoUtil.readBytes(in);
         String valueStr = Base64.encode(bytes, Charset.forName("UTF-8"));
         return valueStr;
@@ -72,16 +68,16 @@ public class WorkFlowController {
     @RequestMapping(value="/workflow/viewResource/{deploymentId}")
     @ResponseBody
     public String viewResource(@PathVariable String deploymentId){
-        String content = workflowService.getWorkFlowResource(deploymentId);
+        String content = workflowFacadeService.getWorkFlowResource(deploymentId);
         return content;
     }
 
     @RequestMapping(value="/workflow/start/{wfKey}")
     @ResponseBody
     public String startWf(@PathVariable String wfKey){
-        WorkflowInfo workflowInfo = workflowService.getWorkFlowInfo(wfKey);
+        WorkflowInfo workflowInfo = workflowFacadeService.getWorkFlowInfoByKey(wfKey);
         try {
-            workflowService.startProcess(wfKey);
+            workflowFacadeService.startProcess(wfKey);
             ResponseData responseData = new ResponseData(ResponseData.Status.SUCCESS);
             responseData.setMessage("流程【"+workflowInfo.getName()+"】启动成功");
             return JSONUtil.toJsonStr(responseData);
@@ -95,7 +91,7 @@ public class WorkFlowController {
 
     @RequestMapping(value="/workflowlist" , method = RequestMethod.GET)
     public ModelAndView workflow(){
-        List<WorkflowInfo> workflowInfoList = workflowService.findAllDefinedWorkflowList();
+        List<WorkflowInfo> workflowInfoList = workflowFacadeService.findAllDefinedWorkflowList();
         ModelAndView mav = new ModelAndView("workflow/workflow_list");
         mav.addObject("workflows",workflowInfoList);
         return mav;
@@ -104,7 +100,7 @@ public class WorkFlowController {
     @RequestMapping(value = "/workflow/pending" , method = RequestMethod.GET)
     public ModelAndView pendingTask(Authentication authentication){
         SecurityUser currentUser = (SecurityUser) authentication.getPrincipal();
-        List<Task> taskList = workflowService.findTaskByUserId(currentUser.getUsername());
+        List<Task> taskList = workflowFacadeService.findTaskByUserId(currentUser.getUsername());
         List<ActTaskVo> taskVoList = taskList.stream().map(t -> {
            ActTaskVo taskVo = new ActTaskVo();
             taskVo.setProcId(t.getProcessInstanceId());
@@ -125,7 +121,7 @@ public class WorkFlowController {
 
     @RequestMapping(value = "/workflow/completed" , method = RequestMethod.GET)
     public ModelAndView completedWorkflows(){
-        List<WorkflowInfo> workflowInfoList = workflowService.getHistoricWorkFlowInfos();
+        List<WorkflowInfo> workflowInfoList = workflowFacadeService.getHistoricWorkFlowInfos();
         ModelAndView mav = new ModelAndView("workflow/completed_workflow_list");
         mav.addObject("workflows",workflowInfoList);
         return mav;

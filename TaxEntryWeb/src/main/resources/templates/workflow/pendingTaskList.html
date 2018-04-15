@@ -4,7 +4,7 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>待办流程 - 录入</title>
+    <title>待办流程 - 列表</title>
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
     <link rel="stylesheet" th:href="@{/css/common.css}" />
@@ -37,7 +37,7 @@
                         <td th:text="${taskStat.index+1}"></td>
                         <td th:text="${task.taskName}"></td>
                         <td th:text="${task.assignee}"></td>
-                        <td th:text="${task.createDate}"></td>
+                        <td th:text="${#dates.format(task.createDate,'yyyy-MM-dd HH:mm:ss')}"></td>
                         <td>
                             <a th:href="@{/{redirectUrl}(redirectUrl=${task.redirectUrl})}">办理</a>
                         </td>
