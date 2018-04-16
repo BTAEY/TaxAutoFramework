@@ -80,7 +80,7 @@
                 success:function(data){
                     var viewImg = document.createElement("img");
                     $(viewImg).attr("src","data:image/jpeg;base64,"+data);
-                    showModal.call(viewImg,"calModal");
+                    showDialog.call(viewImg,"calModal");
                 }
             });
         });
@@ -94,7 +94,7 @@
                     console.log("data = "+data);
                     var viewblockQuote = document.createElement("blockquote");
                     $(viewblockQuote).html(data);
-                    showModal.call(viewblockQuote,"calModal");
+                    showDialog.call(viewblockQuote,"calModal");
                 }
             });
         });
@@ -109,7 +109,7 @@
                     console.log("data = "+JSON.stringify(data));
                     var p = document.createElement("p");
                     $(p).html(data.message);
-                    showModal.call(p,"calModal");
+                    showDialog.call(p,"calModal");
                 }
             });
         });
@@ -124,25 +124,12 @@
                     console.log("data = "+JSON.stringify(data));
                     var p = document.createElement("p");
                     $(p).html(data.message);
-                    showModal.call(p,"calModal");
+                    showDialog.call(p,"calModal");
                 }
             });
         });
 
-        var showModal = function(modalId){
-            var target = $(this);
-            $("#"+modalId).on("show.bs.modal",function(event){
-                var modal = $(this);
-                modal.find(".modal-body").append(target);
-                modal.off("show.bs.modal");
-            });
-            $('#'+modalId).on('hidden.bs.modal', function () {
-                var modal = $(this);
-                modal.data('bs.modal',null);
-                modal.find(".modal-body").children().remove();
-            });
-            $('#'+modalId).modal();
-        }
+
     </script>
 </body>
 </html>

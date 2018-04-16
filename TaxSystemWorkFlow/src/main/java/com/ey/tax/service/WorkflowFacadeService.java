@@ -16,10 +16,13 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Comment;
+import org.activiti.engine.task.IdentityLink;
+import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
 import org.apache.commons.collections.CollectionUtils;
 import org.dozer.Mapper;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,9 +81,18 @@ public class WorkflowFacadeService {
         return runtimeService.startProcessInstanceByKey(processName, variables);
     }
 
+    /**
+     * 删除流程
+     * @param procInstId
+     * @param reason
+     */
+    public void delProcessInstance(String procInstId, String reason){
+        runtimeService.deleteProcessInstance(procInstId,reason);
+    }
+
     public void deploy(String wfKey) {
         String resourcePath = PropertiesUtil.getString(wfKey);
-        repositoryService.createDeployment().addClasspathResource(resourcePath).deploy();
+        repositoryService.createDeployment().addClasspathResource(resourcePath).name("UserDeployManually").key(wfKey).deploy();
     }
 
     /**
@@ -145,7 +158,7 @@ public class WorkflowFacadeService {
      * @return
      */
     public WorkflowInfo getWorkFlowInfoByKey(String wfKey) {
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(wfKey).singleResult();
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(wfKey).latestVersion().singleResult();
         return convertProcessDefinition2WorkflowInfo(processDefinition);
     }
 
@@ -175,22 +188,29 @@ public class WorkflowFacadeService {
     }
 
     /**
-     * 获取所有以完结工作流
+     * 获取所有已完结工作流
      *
      * @return
      */
-    public List<WorkflowInfo> getHistoricWorkFlowInfos() {
-        List<HistoricProcessInstance> processInstances = historyService.createHistoricProcessInstanceQuery()
-                .finished().orderByProcessInstanceId().asc().list();
-
+    public List<WorkflowInfo> getHistoricWorkFlows(boolean finished) {
+        List<HistoricProcessInstance> processInstances = new ArrayList<>();
+        HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
+        if(finished){
+            processInstances = query.finished().orderByProcessInstanceId().asc().list();
+        }else{
+            processInstances = query.unfinished().orderByProcessInstanceId().asc().list();
+        }
         List<WorkflowInfo> workflowInfoList = processInstances.stream().map(i -> {
-            WorkflowInfo workflowInfo = WorkflowInfo.createBuilder()
+            WorkflowInfo.Builder builder = WorkflowInfo.createBuilder();
+            builder.procInstId(i.getId())
                     .name(i.getProcessDefinitionName())
-                    .duration(i.getDurationInMillis() / 1000)
                     .startTime(i.getStartTime())
                     .endTime(i.getEndTime())
-                    .key(i.getProcessDefinitionKey())
-                    .build();
+                    .key(i.getProcessDefinitionKey());
+            if(i.getDurationInMillis() != null){
+                builder.duration(i.getDurationInMillis() / 1000);
+            }
+            WorkflowInfo workflowInfo = builder.build();
             return workflowInfo;
         }).collect(Collectors.toList());
         return workflowInfoList;
@@ -241,13 +261,38 @@ public class WorkflowFacadeService {
         return commentVos;
     }
 
-    public String getProcessName(String procDefineId) {
-        ProcessDefinition processDefinition = repositoryService.getProcessDefinition(procDefineId);
-        if (processDefinition != null) {
-            return processDefinition.getName();
-        }
-        return "";
+    /**
+     * 指定任务办理人
+     * @param taskId
+     * @param userId
+     */
+    public void assignTask(String taskId,String userId){
+        taskService.setAssignee(taskId,userId);
     }
+
+    /**
+     * 拾取任务，将组任务分配给个人任务
+     * @param taskId
+     */
+    public void claimTask(String taskId,String userId){
+        //可以分配给组任务中的成员，也可以使非组任务中的成员
+        taskService.claim(taskId,userId);
+    }
+
+    public String findTaskAssignmentType(String taskId){
+        List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(taskId);
+        if(CollectionUtil.isNotEmpty(identityLinks)){
+            for(IdentityLink identityLink:identityLinks){
+               if(IdentityLinkType.CANDIDATE.equals(identityLink.getType())){
+                   return IdentityLinkType.CANDIDATE;
+               }else if(IdentityLinkType.ASSIGNEE.equals(identityLink.getType())){
+                   return IdentityLinkType.ASSIGNEE;
+               }
+            }
+        }
+        return null;
+    }
+
 
     /**
      * 查看流程实例是否结束
@@ -325,9 +370,22 @@ public class WorkflowFacadeService {
 //        runtimeService.setVariableLocal(executionId,variableName,value);  //与任务id绑定
     }
 
-    public List<Comment> findCommentsByTaskId(String taskId) {
+    /**
+     * 向组任务中添加成员
+     * @param taskId
+     * @param userId
+     */
+    public void addGroupUser(String taskId,String userId){
+        taskService.addCandidateUser(taskId,userId);
+    }
 
-        return taskService.getTaskComments(taskId);
+    /**
+     * 将成员从组任务中删除
+     * @param taskId
+     * @param userId
+     */
+    public void deleteGroupUser(String taskId,String userId){
+        taskService.deleteCandidateUser(taskId,userId);
     }
 
 

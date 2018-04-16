@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="TaxPayment_Candidate" name="组任务测试" isExecutable="true">
+    <startEvent id="start" name="开始"></startEvent>
+    <userTask id="submitForm" name="提交表单" activiti:formKey="taxPayment/forward/submitForm">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.ey.tax.workflow.listener.TaskServiceImpl"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="sid-9BD3A8AC-DB9A-436A-9481-926106E2D62F" sourceRef="start" targetRef="submitForm"></sequenceFlow>
+    <userTask id="editForm" name="录入表单" activiti:candidateUsers="maker,general" activiti:formKey="taxPayment/forward/registerForm"></userTask>
+    <sequenceFlow id="sid-564557B5-9B71-47D4-90D9-10DD7B1ECEA0" sourceRef="submitForm" targetRef="editForm"></sequenceFlow>
+    <userTask id="auditForm" name="审核表单" activiti:candidateUsers="approver,admin" activiti:formKey="taxPayment/forward/auditForm"></userTask>
+    <sequenceFlow id="sid-DB388F85-B718-4F7F-90EE-C9DED613988A" sourceRef="editForm" targetRef="auditForm"></sequenceFlow>
+    <exclusiveGateway id="sid-D641CAA7-CE9C-4E5D-9343-F3DC7277DE6D"></exclusiveGateway>
+    <sequenceFlow id="sid-4D786AA7-34E9-429A-A72D-EB52437A6C5D" sourceRef="auditForm" targetRef="sid-D641CAA7-CE9C-4E5D-9343-F3DC7277DE6D"></sequenceFlow>
+    <endEvent id="end" name="结束"></endEvent>
+    <sequenceFlow id="reject" name="拒绝" sourceRef="sid-D641CAA7-CE9C-4E5D-9343-F3DC7277DE6D" targetRef="editForm">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="pass" name="通过" sourceRef="sid-D641CAA7-CE9C-4E5D-9343-F3DC7277DE6D" targetRef="end">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approve}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_TaxPayment_Candidate">
+    <bpmndi:BPMNPlane bpmnElement="TaxPayment_Candidate" id="BPMNPlane_TaxPayment_Candidate">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="90.0" y="150.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="submitForm" id="BPMNShape_submitForm">
+        <omgdc:Bounds height="80.0" width="100.0" x="195.0" y="105.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="editForm" id="BPMNShape_editForm">
+        <omgdc:Bounds height="80.0" width="100.0" x="390.0" y="105.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="auditForm" id="BPMNShape_auditForm">
+        <omgdc:Bounds height="80.0" width="100.0" x="570.0" y="105.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-D641CAA7-CE9C-4E5D-9343-F3DC7277DE6D" id="BPMNShape_sid-D641CAA7-CE9C-4E5D-9343-F3DC7277DE6D">
+        <omgdc:Bounds height="40.0" width="40.0" x="705.0" y="285.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="28.0" width="28.0" x="1005.0" y="285.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-564557B5-9B71-47D4-90D9-10DD7B1ECEA0" id="BPMNEdge_sid-564557B5-9B71-47D4-90D9-10DD7B1ECEA0">
+        <omgdi:waypoint x="295.0" y="145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="145.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-9BD3A8AC-DB9A-436A-9481-926106E2D62F" id="BPMNEdge_sid-9BD3A8AC-DB9A-436A-9481-926106E2D62F">
+        <omgdi:waypoint x="120.0" y="165.0"></omgdi:waypoint>
+        <omgdi:waypoint x="157.5" y="165.0"></omgdi:waypoint>
+        <omgdi:waypoint x="157.5" y="145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="195.0" y="145.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="pass" id="BPMNEdge_pass">
+        <omgdi:waypoint x="744.5" y="305.5"></omgdi:waypoint>
+        <omgdi:waypoint x="875.0" y="305.5"></omgdi:waypoint>
+        <omgdi:waypoint x="875.0" y="299.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1005.0" y="299.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="reject" id="BPMNEdge_reject">
+        <omgdi:waypoint x="712.0571748878924" y="297.94282511210764"></omgdi:waypoint>
+        <omgdi:waypoint x="490.0" y="173.10858143607706"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-DB388F85-B718-4F7F-90EE-C9DED613988A" id="BPMNEdge_sid-DB388F85-B718-4F7F-90EE-C9DED613988A">
+        <omgdi:waypoint x="490.0" y="145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="570.0" y="145.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-4D786AA7-34E9-429A-A72D-EB52437A6C5D" id="BPMNEdge_sid-4D786AA7-34E9-429A-A72D-EB52437A6C5D">
+        <omgdi:waypoint x="670.0" y="145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="725.5" y="145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="725.5" y="285.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

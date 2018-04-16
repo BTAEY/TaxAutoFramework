@@ -11,11 +11,14 @@ import com.ey.tax.web.core.ResponseData;
 import org.activiti.engine.FormService;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.task.Task;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -120,10 +123,40 @@ public class WorkFlowController {
     }
 
     @RequestMapping(value = "/workflow/completed" , method = RequestMethod.GET)
-    public ModelAndView completedWorkflows(){
-        List<WorkflowInfo> workflowInfoList = workflowFacadeService.getHistoricWorkFlowInfos();
+    public ModelAndView completedWorkFlows(){
+        List<WorkflowInfo> workflowInfoList = workflowFacadeService.getHistoricWorkFlows(true);
         ModelAndView mav = new ModelAndView("workflow/completed_workflow_list");
         mav.addObject("workflows",workflowInfoList);
         return mav;
+    }
+
+    /**
+     * 查询未完成的工作流
+     * @return
+     */
+    @RequestMapping(value = "/workflow/undone", method = RequestMethod.GET)
+    public ModelAndView undoneWorkFlows(){
+        List<WorkflowInfo> workflowInfoList = workflowFacadeService.getHistoricWorkFlows(false);
+        ModelAndView mav = new ModelAndView("workflow/undone_workflow_list");
+        mav.addObject("workflows",workflowInfoList);
+        return mav;
+    }
+
+    /**
+     * 查看任务办理进度
+     * @return
+     */
+    @RequestMapping(value="/workflow/viewProgress",method = RequestMethod.GET)
+    public String viewProgress(ModelMap map){
+        return "";
+    }
+
+    @RequestMapping(value="/workflow/delProc",method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteProcessInstance(HttpServletRequest request){
+        String procInstId = request.getParameter("procInstId");
+        String reason = request.getParameter("reason");
+        workflowFacadeService.delProcessInstance(procInstId,reason);
+        return "/workflow/undone";
     }
 }

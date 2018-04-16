@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>工作流管理</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/navigation.css}" />
+</head>
+<body>
+    <div th:replace="fragments/navigation::navigation"></div>
+
+    <div class="container">
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>
+                    <label>工作流名称</label>
+                </th>
+                <th>
+                    <label>描述</label>
+                </th>
+                <th>
+                    <label>开始时间</label>
+                </th>
+                <th>
+                    <label>流程进度</label>
+                </th>
+                <th>
+                    <label>操作</label>
+                </th>
+            </tr>
+            <th:block th:each="workflow,stat : ${workflows}">
+                <tr th:attr="data-instanceId=${workflow.procInstId}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${workflow.name}"></td>
+                    <td th:text="${workflow.description}"></td>
+                    <td th:text="${workflow.startTime}"></td>
+                    <td>
+                        <a href="javascript:void(0);" class="viewProgress">查看</a>
+                    </td>
+                    <td>
+                        <a href="javascript:void(0);" class="delProc">删除</a>
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+        <div class="modal fade" id="delProcModal" tabindex="-1" role="dialog" aria-labelledby="calModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">删除流程</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" id="delProcForm" action="/workflow/delProc" method="post">
+                            <input type="hidden" name="procInstId" id="procInstId"/>
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="form-group">
+                                <label for="reason">删除流程原因</label>
+                                <input type="text" name="reason" class="form-control" placeholder="原因" id="reason"/>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-primary" id="delProcBtn">确认提交</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        $(".delProc").click(function(){
+            var procInstanceId = $(this).parent().parent().data("instanceid");
+            $("#procInstId").val(procInstanceId);
+            $("#delProcModal").modal();
+        });
+
+        $(document).ready(function(){
+            $("#delProcForm").on("submit",function(e){
+                e.preventDefault();
+                var postData = $(this).serializeArray();
+                var formUrl = $(this).attr('action');
+                $.ajax({
+                    url:formUrl,
+                    type:"post",
+                    data:postData,
+                    success:function(data){
+                        window.location.href=data;
+                    }
+                });
+            });
+            $("#delProcBtn").click(function (event) {
+                $("#delProcForm").submit();
+            });
+        });
+
+    </script>
+</body>
+</html>

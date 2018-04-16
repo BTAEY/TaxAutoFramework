@@ -12,6 +12,8 @@ public class WorkflowInfo implements Serializable{
 
     private String deploymentId;
 
+    private String procInstId;
+
     private String name;
 
     private String key;
@@ -44,6 +46,7 @@ public class WorkflowInfo implements Serializable{
         this.startTime = builder.startTime;
         this.endTime = builder.endTime;
         this.duration = builder.duration;
+        this.procInstId = builder.procInstId;
     }
 
     public static Builder createBuilder(){
@@ -138,10 +141,20 @@ public class WorkflowInfo implements Serializable{
         this.endTime = endTime;
     }
 
+    public String getProcInstId() {
+        return procInstId;
+    }
+
+    public void setProcInstId(String procInstId) {
+        this.procInstId = procInstId;
+    }
+
     public static class Builder{
         private String defineId;
 
         private String deploymentId;
+
+        private String procInstId;
 
         private String name;
 
@@ -211,6 +224,10 @@ public class WorkflowInfo implements Serializable{
             return this;
         }
 
+        public Builder procInstId(String procInstId){
+            this.procInstId = procInstId;
+            return this;
+        }
 
         public WorkflowInfo build(){
             return new WorkflowInfo(this);

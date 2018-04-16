@@ -126,9 +126,10 @@ insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,d
 insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (4,0,'角色管理',1,'/admin/menu/role',2,3,'角色管理菜单');
 insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (5,0,'组织管理',1,'/admin/menu/organization',2,4,'组织管理菜单');
 insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (6,0,'工作流管理',NULL,'',1,2,'工作流管理');
-insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (7,0,'流程列表',6,'/workflowlist',1,2,'工作流管理');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (7,0,'流程仓库',6,'/workflowlist',1,2,'工作流定义仓库');
 insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (8,0,'已完成流程',6,'/workflow/completed',2,1,'已完成流程菜单');
 insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (9,0,'待办事项',6,'/workflow/pending',2,2,'待办事项菜单');
+insert into t_sys_menu(id,version,menu_name,pid,menu_url,menu_level,menu_order,description) values (10,0,'未完成流程',6,'/workflow/undone',1,2,'正在进行的工作流');
 
 CREATE TABLE if not EXISTS `t_sys_role_menu_ref` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -148,4 +149,5 @@ insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,6,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,7,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,8,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,9,0);
+insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,10,0);
 
