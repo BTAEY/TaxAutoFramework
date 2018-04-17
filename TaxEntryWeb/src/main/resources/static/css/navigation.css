@@ -1,13 +1,14 @@
 .navbar-header{
     width: 100%;
+    z-index: 1001;
+    background-color:  #f5d442e0;
 }
 
 .navbar-header__brand{
     display: flex;
     justify-content: space-between;
-    background-color:  #9822DCFF;
     height: 80px;
-    color:#fff;
+    color:#000;
 }
 .navbar-header__brand__item {
     margin: 0;
@@ -15,7 +16,6 @@
     width:30%;
     height: 80px;
     line-height: 80px;
-    background-color: #fff;
     display: flex;
     justify-content: center;
 }
@@ -28,7 +28,7 @@
 }
 
 .navbar-header__brand__item li:first-child{
-    margin-right:auto;
+    margin-right:20px;
 }
 
 .navbar-header__avatar::before{

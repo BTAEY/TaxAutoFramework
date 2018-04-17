@@ -1,4 +1,4 @@
-<head th:fragment="head(title,links,scripts)">
+<head th:fragment="commonHead(title)">
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,6 +7,4 @@
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
     <link rel="stylesheet" th:href="@{/css/common.css}" />
     <link rel="stylesheet" th:href="@{/css/header.css}" />
-    <th:block th:replace="${links}"/>
-    <th:block th:replace="${scripts}"/>
 </head>

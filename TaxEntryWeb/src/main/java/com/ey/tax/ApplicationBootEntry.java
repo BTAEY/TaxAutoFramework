@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jersey.JerseyProperties;
+import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
@@ -27,7 +28,7 @@ import java.util.Map;
 /**
  * Created by zhuji on 2/8/2018.
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = ThymeleafAutoConfiguration.class)
 @EnableJpaAuditing
 @MapperScan("com.ey.tax.core.dao")
 public class ApplicationBootEntry extends SpringBootServletInitializer {

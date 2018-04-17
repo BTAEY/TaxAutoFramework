@@ -1,3 +1,14 @@
+<head th:fragment="commonHead(title)">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:replace="${title}">The Template Header</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/header.css}" />
+</head>
+
 <div class="navbar-header" th:fragment="navigation">
     <div class="navbar-header__brand">
         <h2 id="logo" style="cursor:pointer;">税务自动化管理系统</h2>
@@ -18,6 +29,17 @@
         <a class="navbar-header__container__item">统计分析</a>
         <a class="navbar-header__container__item">税务筹划</a>
     </nav>
+</div>
+
+<div class="slide-menu" id="leftSlideMenu" th:fragment="menu">
+    <div class="slide-menu-top">
+        <div id="mini" style="border-bottom:1px solid rgba(255,255,255,.1)"><img th:src="@{/images/mini.png}" ></div>
+    </div>
+    <ul>
+    </ul>
+</div>
+
+<span th:fragment="commonLoadJs">
     <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
     <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
     <script th:src="@{/javascript/js/common.js}"></script>
@@ -26,4 +48,7 @@
             window.location.href = "/";
         });
     </script>
+</span>
+
+<div th:fragment="footer">
 </div>

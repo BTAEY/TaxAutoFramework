@@ -1,3 +1,18 @@
+@import "../fontawesome/css/fontawesome-all.css";
+
+body,html{
+    height: 100%;
+}
+body,ul{margin:0;padding:0}
+body{
+    position: relative;
+    overflow-x: hidden;
+}
+body{font:14px "微软雅黑","宋体","Arial Narrow",HELVETICA;-webkit-text-size-adjust:100%;}
+li{list-style:none}
+a{text-decoration:none;}
+a:hover{text-decoration: none;}
+
 .clearfix::after{
     clear: both;
     overflow: hidden;

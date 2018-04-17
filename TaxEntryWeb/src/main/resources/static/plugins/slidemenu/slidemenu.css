@@ -1,0 +1,42 @@
+@charset "utf-8";
+/* slide-menu */
+.slide-menu{width: 220px;height: 100%;background: #263238;transition: all .3s; float:left;}
+.slide-menu a{display: block;overflow: hidden;padding-left: 20px;line-height: 46px;max-height: 46px;color: #ABB1B7;transition: all .3s;}
+.slide-menu a span{margin-left: 30px;}
+.slide-menu-item{position: relative;}
+.slide-menu-item.slide-menu-show{border-bottom: none;}
+.slide-menu-item ul{display: none;background: rgba(0,0,0,.1);}
+.slide-menu-item.slide-menu-show ul{display: block;}
+.slide-menu-item>a:before{content: "";position: absolute;left: 0px;width: 2px;height: 46px;background: #34A0CE;opacity:0;transition: all .3s;}
+.slide-menu .slide-menu-icon{font-size: 20px;position: relative;margin-left:-1px;}
+/* 此处修改导航图标 可自定义iconfont 替换*/
+/*.icon_1::after{content: "\e62b";}
+.icon_2::after{content: "\e669";}
+.icon_3::after{content: "\e61d";}*/
+/*---------------------*/
+.slide-menu-more{
+    float:right;
+    margin-right: 20px;
+    position:relative;
+    top:20px;
+    font-size: 12px;
+    transition: transform .3s;
+}
+/* 此处为导航右侧箭头 如果自定义iconfont 也需要替换*/
+/*.slide-menu-more::after{content: "\e621";}*/
+/*---------------------*/
+.slide-menu-show .slide-menu-more{transform:rotate(90deg);}
+.slide-menu-show,.slide-menu-item>a:hover{color: #FFF;background:rgba(0,0,0,.1);}
+.slide-menu-show>a:before,.slide-menu-item>a:hover:before{opacity:1;}
+.slide-menu-item li:hover a{color: #FFF;background: rgba(0, 0, 0,.1);}
+
+/* slide-menu-mini */
+.slide-menu-mini.slide-menu{width: 60px;}
+.slide-menu-mini.slide-menu .slide-menu-icon{/* margin-left:-2px; */}
+.slide-menu-mini.slide-menu .slide-menu-item>a span{display: none;}
+.slide-menu-mini.slide-menu .slide-menu-more{margin-right: -20px;}
+.slide-menu-mini.slide-menu .slide-menu-item ul{position: absolute;top:0px;left:60px;width: 180px;z-index: 99;background:#3C474C;overflow: hidden;}
+.slide-menu-mini.slide-menu .slide-menu-item:hover{background:rgba(255,255,255,.1);}
+.slide-menu-mini.slide-menu .slide-menu-item:hover .slide-menu-item a{color:#FFF;}
+.slide-menu-mini.slide-menu .slide-menu-item:hover a:before{opacity:10;}
+.slide-menu-mini.slide-menu .slide-menu-item:hover ul{display: block;}

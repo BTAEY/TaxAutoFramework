@@ -9,12 +9,14 @@
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
     <link rel="stylesheet" th:href="@{/css/common.css}" />
     <link rel="stylesheet" th:href="@{/css/navigation.css}" />
+    <link rel="stylesheet" th:href="@{/plugins/slidemenu/slidemenu.css}" />
     <link th:href="@{/plugins/datepicker/css/bootstrap-datetimepicker.css}" rel="stylesheet"/>
 </head>
 <body>
-    <div th:replace="fragments/navigation::navigation"></div>
+    <div th:replace="fragments/layout::navigation"></div>
+    <div th:replace="fragments/layout::menu"></div>
 
-    <div class="container">
+    <div class="container" style="display: inline-block;">
         <div class="container">
             <table class="table">
                 <tr>
@@ -46,6 +48,14 @@
             </table>
         </div>
     </div>
+
+    <span th:replace="fragments/layout::commonLoadJs"></span>
+    <script th:src="@{/plugins/slidemenu/jquery-slidemenu.js}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#leftSlideMenu").slideMenu({url:'/menu/load'});
+        });
+    </script>
 
     <script th:src="@{/plugins/datepicker/js/bootstrap-datetimepicker.min.js}"></script>
     <script>

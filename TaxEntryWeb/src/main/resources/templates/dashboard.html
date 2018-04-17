@@ -9,109 +9,72 @@
     <link rel="stylesheet" th:href="@{/css/common.css}" />
     <link rel="stylesheet" th:href="@{/css/navigation.css}" />
     <title>Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
-</head>
-<body>
-<div th:replace="fragments/navigation::navigation"></div>
-<div id="wrapper">
-    <div class="overlay"></div>
-
-    <!-- Sidebar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
-        <ul class="nav sidebar-nav">
-            <li class="sidebar-brand">
-                <a href="#">
-                    Tax Auto System
-                </a>
-            </li>
-        </ul>
-    </nav>
-    <!-- /#sidebar-wrapper -->
-
-    <!-- Page Content -->
-    <div id="page-content-wrapper">
-        <button type="button" class="hamburger is-closed animated fadeInLeft" data-toggle="offcanvas">
-            <span class="hamb-top"></span>
-            <span class="hamb-middle"></span>
-            <span class="hamb-bottom"></span>
-        </button>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 col-lg-offset-2">
-                    <h2>Welcome <span th:text="${userInfo.name}"/> !</h2>
-                    <h1>User Information</h1>
-                    <br/>
-                    <nav >
-                        <ul class="user_info_list">
-                            <li>
-                                <div class="col-lg-3">Login Status: </div>
-                                <div class="col-lg-8"><span th:text="${userInfo.loginStatus}"/></div>
-                            </li>
-                            <li>
-                                <div class="col-lg-3">Account Status: </div>
-                                <div class="col-lg-8"><span th:text="${userInfo.accountStatus}"/></div>
-                            </li>
-                            <li>
-                                <div class="col-lg-3">Role: </div>
-                                <div class="col-lg-8"><span th:each="role : ${userInfo.roles}" th:text="${role.roleName}"/>,</div>
-                            </li>
-                            <li>
-                                <div class="col-lg-3">Create Man: </div>
-                                <div class="col-lg-8"><span th:text="${userInfo.createman}"/></div>
-                            </li>
-                            <li>
-                                <div class="col-lg-3">Create Date: </div>
-                                <div class="col-lg-8"><span th:text="${userInfo.createdate}"/></div>
-                            </li>
-                            <li>
-                                <div class="col-lg-3">Update Man: </div>
-                                <div class="col-lg-8"><span th:text="${userInfo.updateman}"/></div>
-                            </li>
-                            <li>
-                                <div class="col-lg-3">Update Date: </div>
-                                <div class="col-lg-8"><span th:text="${#dates.format(userInfo.updatedate,'yyyy-MM-dd HH:mm:ss')}"/></div>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- /#page-content-wrapper -->
-</div>
-<!-- /#wrapper -->
-
-<script src="plugins/mymenu/jquery-mymenu.js"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        var trigger = $('.hamburger'),
-                overlay = $('.overlay'),
-                isClosed = false;
-
-        trigger.click(function () {
-            hamburger_cross();
-        });
-
-        function hamburger_cross() {
-
-            if (isClosed == true) {
-                overlay.hide();
-                trigger.removeClass('is-open');
-                trigger.addClass('is-closed');
-                isClosed = false;
-            } else {
-                overlay.show();
-                trigger.removeClass('is-closed');
-                trigger.addClass('is-open');
-                isClosed = true;
-            }
+    <link rel="stylesheet" th:href="@{/plugins/slidemenu/slidemenu.css}" />
+    <style>
+        .user_info_list{
+            list-style: none;
+            color: rgba(0, 0, 0, 0.9);
+            font-size: 14px;
+            border-top:solid 1px rgba(255, 255, 255, 0.9);
         }
 
-        $('[data-toggle="offcanvas"]').click(function () {
-            $('#wrapper').toggleClass('toggled');
-        });
+        .user_info_list li{
+            height:32px;
+            line-height: 32px;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/layout::navigation"></div>
+<div th:replace="fragments/layout::menu"></div>
 
-        $("#sidebar-wrapper").mymenu({url:'menu/load'});
+<div class="container" style="display:inline-block;">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2">
+            <h2>Welcome <span th:text="${userInfo.name}"/> !</h2>
+            <h1>User Information</h1>
+            <br/>
+            <nav >
+                <ul class="user_info_list">
+                    <li>
+                        <div class="col-lg-3">Login Status: </div>
+                        <div class="col-lg-8"><span th:text="${userInfo.loginStatus}"/></div>
+                    </li>
+                    <li>
+                        <div class="col-lg-3">Account Status: </div>
+                        <div class="col-lg-8"><span th:text="${userInfo.accountStatus}"/></div>
+                    </li>
+                    <li>
+                        <div class="col-lg-3">Role: </div>
+                        <div class="col-lg-8"><span th:each="role : ${userInfo.roles}" th:text="${role.roleName}"/>,</div>
+                    </li>
+                    <li>
+                        <div class="col-lg-3">Create Man: </div>
+                        <div class="col-lg-8"><span th:text="${userInfo.createman}"/></div>
+                    </li>
+                    <li>
+                        <div class="col-lg-3">Create Date: </div>
+                        <div class="col-lg-8"><span th:text="${userInfo.createdate}"/></div>
+                    </li>
+                    <li>
+                        <div class="col-lg-3">Update Man: </div>
+                        <div class="col-lg-8"><span th:text="${userInfo.updateman}"/></div>
+                    </li>
+                    <li>
+                        <div class="col-lg-3">Update Date: </div>
+                        <div class="col-lg-8"><span th:text="${#dates.format(userInfo.updatedate,'yyyy-MM-dd HH:mm:ss')}"/></div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<span th:replace="fragments/layout::commonLoadJs"></span>
+<script th:src="@{/plugins/slidemenu/jquery-slidemenu.js}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#leftSlideMenu").slideMenu({url:'menu/load'});
     });
 </script>
 </body>
