@@ -6,7 +6,7 @@ body,html{
 body,ul{margin:0;padding:0}
 body{
     position: relative;
-    overflow-x: hidden;
+    /*overflow-x: hidden;*/
 }
 body{font:14px "微软雅黑","宋体","Arial Narrow",HELVETICA;-webkit-text-size-adjust:100%;}
 li{list-style:none}
@@ -16,4 +16,10 @@ a:hover{text-decoration: none;}
 .clearfix::after{
     clear: both;
     overflow: hidden;
+}
+
+.flex-container{
+    display: flex;
+    width:100%;
+    flex-wrap: wrap;
 }

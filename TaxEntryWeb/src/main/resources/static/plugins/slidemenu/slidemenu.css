@@ -1,6 +1,15 @@
 @charset "utf-8";
 /* slide-menu */
-.slide-menu{width: 220px;height: 100%;background: #263238;transition: all .3s; float:left;}
+.slide-menu{
+    width: 220px;
+    /*height: 100%;*/
+    background: #263238;
+    transition: all .3s;
+    position: absolute;
+    top: 130px;
+    bottom: 0;
+    left: 0;
+    }
 .slide-menu a{display: block;overflow: hidden;padding-left: 20px;line-height: 46px;max-height: 46px;color: #ABB1B7;transition: all .3s;}
 .slide-menu a span{margin-left: 30px;}
 .slide-menu-item{position: relative;}

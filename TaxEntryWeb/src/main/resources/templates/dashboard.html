@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
@@ -25,10 +25,10 @@
     </style>
 </head>
 <body>
+<div class="flex-container">
 <div th:replace="fragments/layout::navigation"></div>
 <div th:replace="fragments/layout::menu"></div>
-
-<div class="container" style="display:inline-block;">
+<div class="container">
     <div class="row">
         <div class="col-lg-8 col-lg-offset-2">
             <h2>Welcome <span th:text="${userInfo.name}"/> !</h2>
@@ -69,7 +69,8 @@
         </div>
     </div>
 </div>
-
+</div>
+</div>
 <span th:replace="fragments/layout::commonLoadJs"></span>
 <script th:src="@{/plugins/slidemenu/jquery-slidemenu.js}"></script>
 <script type="text/javascript">

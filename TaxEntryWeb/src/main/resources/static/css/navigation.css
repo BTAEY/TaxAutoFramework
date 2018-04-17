@@ -1,5 +1,6 @@
 .navbar-header{
     width: 100%;
+    height: 130px;
     z-index: 1001;
     background-color:  #f5d442e0;
 }
@@ -7,7 +8,7 @@
 .navbar-header__brand{
     display: flex;
     justify-content: space-between;
-    height: 80px;
+    /*height: 80px;*/
     color:#000;
 }
 .navbar-header__brand__item {
