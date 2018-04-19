@@ -8,6 +8,7 @@ import com.ey.tax.service.IAttachmentStoreDelegate;
 import com.ey.tax.service.TaskPropertyResolverAdapter;
 import com.ey.tax.service.UploadService;
 import com.ey.tax.service.WorkflowFacadeService;
+import com.ey.tax.utils.DateUtil;
 import com.ey.tax.utils.PropertiesUtil;
 import com.ey.tax.utils.StringUtil;
 import com.ey.tax.vo.HistoryCommentVo;
@@ -16,6 +17,7 @@ import com.ey.tax.vo.taxpayment.RegisterInfo;
 import com.ey.tax.vo.taxpayment.SubmitterInfo;
 import com.ey.tax.workflow.FormPageMapping;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.task.Attachment;
 import org.activiti.engine.task.Task;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
@@ -76,6 +78,7 @@ public class TaxPaymentController implements IAttachmentStoreDelegate {
     @RequestMapping(value = "/taxPayment/processTask/submit", method = RequestMethod.POST, headers = "Content-Type=multipart/form-data")
     public String submit(MultipartHttpServletRequest request,Authentication authentication,SubmitterInfo submitterInfo,String comment){
         String taskId = request.getParameter("taskId");
+
         List<MultipartFile> multipartFiles = new ArrayList<MultipartFile>();
         Optional.ofNullable(request.getMultiFileMap()).ifPresent(m -> {
             m.values().forEach((t) -> {
@@ -87,7 +90,6 @@ public class TaxPaymentController implements IAttachmentStoreDelegate {
         submitterInfo.setTaskId(taskId);
         final Map<String,Object> variables = new HashMap<>();
         variables.put("submitter",submitterInfo);
-//        variables.put("to","general");
         String toUser = request.getParameter("toUser");
         variables.put("to",toUser);
 
@@ -122,6 +124,8 @@ public class TaxPaymentController implements IAttachmentStoreDelegate {
         registerInfo.setOrganization("浙商总行");
 
         List<HistoryCommentVo> commentVos = workflowFacadeService.getProcessInstanceComments(task.getProcessInstanceId());
+        List<Attachment> attachments = workflowFacadeService.getAttachmentByProcInstId(task.getProcessInstanceId());
+
         taskService.claim(taskId,user.getUsername());
 
         ModelAndView mav = new ModelAndView(PropertiesUtil.getString(FormPageMapping.TAX_PAYMENT_REGISTER_FORM));
@@ -129,6 +133,7 @@ public class TaxPaymentController implements IAttachmentStoreDelegate {
         mav.addObject("wfname",workflowInfo.getName());
         mav.addObject("taskId",taskId);
         mav.addObject("auditHistory",commentVos);
+        mav.addObject("attachments",attachments);
         return mav;
     }
 
@@ -215,9 +220,10 @@ public class TaxPaymentController implements IAttachmentStoreDelegate {
     @Override
     public AttachmentStore saveAttachmentStore(String absolutePath) {
         AttachmentStore attachmentStore = new AttachmentStore();
-        attachmentStore.setStoreType(AttachmentEnums.StoreType.Local);
+        attachmentStore.setStoreType(AttachmentEnums.StoreType.Remote);
         attachmentStore.setAttachmentName(attachmentName());
         attachmentStore.setPhysicalPath(absolutePath);
+        attachmentStore.setRemotePath(absolutePath);
         attachmentStore.setAttachmentType(AttachmentEnums.AttachmentType.valueOf(StringUtil.getFilenameExtension(absolutePath).toUpperCase()));
         attachmentStore = attachmentStoreService.save(attachmentStore);
         return attachmentStore;
@@ -225,6 +231,6 @@ public class TaxPaymentController implements IAttachmentStoreDelegate {
 
     @Override
     public String attachmentName() {
-        return "test";
+        return String.valueOf(DateUtil.getNowTimestamp().getTime());
     }
 }

@@ -22,6 +22,12 @@ public class AttachmentEnums {
             public Object getCode() {
                 return "xlsx";
             }
+        },
+        JPG{
+            @Override
+            public Object getCode() {
+                return "jpg";
+            }
         }
     }
 

@@ -14,7 +14,7 @@
         <h2 id="logo" style="cursor:pointer;">税务自动化管理系统</h2>
         <ul class="navbar-header__brand__item clearfix">
             <li class="navbar-header__avatar">
-                <span sec:authentication="name"></span>
+                <span sec:authentication="name"/>
             </li>
             <li>
                 <form th:action="@{/logout}" method="post">

@@ -11,15 +11,21 @@ import com.ey.tax.utils.PropertiesUtil;
 import com.ey.tax.utils.StringUtil;
 import com.ey.tax.vo.HistoryCommentVo;
 import com.ey.tax.vo.WorkflowInfo;
+import org.activiti.bpmn.model.Activity;
 import org.activiti.engine.HistoryService;
+import org.activiti.engine.IdentityService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.impl.persistence.entity.GroupEntityImpl;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Attachment;
 import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.IdentityLinkType;
@@ -53,6 +59,9 @@ public class WorkflowFacadeService {
 
     @Autowired
     private HistoryService historyService;
+
+    @Autowired
+    private IdentityService identityService;
 
     @Autowired
     private WorkFlowDAO workFlowDAO;
@@ -136,6 +145,47 @@ public class WorkflowFacadeService {
         Optional<String> imageNameOptional = repositoryService.getDeploymentResourceNames(deploymentId).stream().filter(s -> s.indexOf(".png") >= 0).findFirst();
         InputStream in = repositoryService.getResourceAsStream(deploymentId, imageNameOptional.get());
         return in;
+    }
+
+    /**
+     * 获取流程图像，已执行节点和流程线高亮显示
+     */
+    public InputStream getActivityProcessImage(String procInstId){
+        //  获取历史流程实例
+        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(procInstId).singleResult();
+        if (historicProcessInstance != null){// 获取流程定义
+            ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) repositoryService.createProcessDefinitionQuery()
+                    .processDefinitionId(historicProcessInstance.getProcessDefinitionId()).singleResult();
+            // 获取流程历史中已执行节点，并按照节点在流程中执行先后顺序排序
+            List<HistoricActivityInstance> historicActivityInstanceList = historyService.createHistoricActivityInstanceQuery()
+                    .processInstanceId(procInstId)
+                    .orderByHistoricActivityInstanceId()
+                    .asc()
+                    .list();
+            // 已执行的节点ID集合
+            List<String> executedActivityIdList = new ArrayList<String>();
+            int index = 1;
+            //获取已经执行的节点ID
+            for (HistoricActivityInstance activityInstance : historicActivityInstanceList) {
+                executedActivityIdList.add(activityInstance.getActivityId());
+                index++;
+            }
+            // 已执行的线集合
+            List<String> flowIds = new ArrayList<String>();
+            // 获取流程走过的线
+            flowIds = getHighLightedFlows(processDefinition, historicActivityInstanceList);
+        }
+        return null;
+    }
+
+    public List<String> getHighLightedFlows( ProcessDefinitionEntity processDefinitionEntity, List<HistoricActivityInstance> historicActivityInstances){
+        List<String> highFlows = new ArrayList<String>();// 用以保存高亮的线flowId
+        for (int i = 0; i < historicActivityInstances.size() - 1; i++) {
+            // 对历史流程节点进行遍历
+//            ActivityImpl activityImpl = processDefinitionEntity .findActivity(historicActivityInstances.get(i) .getActivityId());
+        }
+        return null;
     }
 
     /**
@@ -259,6 +309,32 @@ public class WorkflowFacadeService {
             return commentVo;
         }).collect(Collectors.toList());
         return commentVos;
+    }
+
+    /**
+     * 根据任务Id 查找附件
+     * @param taskId
+     * @return
+     */
+    public List<Attachment> getAttachmentByTaskId(String taskId){
+        List<Attachment> attachments = taskService.getTaskAttachments(taskId);
+
+        return attachments;
+    }
+
+    public Attachment getAttachmentById(String attachmentId){
+        return taskService.getAttachment(attachmentId);
+    }
+
+    /**
+     * 根据流程实例Id 查找附件
+     * @param procInstId
+     * @return
+     */
+    public List<Attachment> getAttachmentByProcInstId(String procInstId){
+        List<Attachment> attachments = taskService.getProcessInstanceAttachments(procInstId);
+
+        return attachments;
     }
 
     /**
@@ -388,5 +464,28 @@ public class WorkflowFacadeService {
         taskService.deleteCandidateUser(taskId,userId);
     }
 
+    /**
+     * 添加用户角色组
+     */
+    public void addGroup(){
+        //创建角色
 
+        identityService.saveGroup(new GroupEntityImpl());
+        identityService.createMembership("userId","groupId");
+    }
+
+    /**
+     * 查看当前活动，获取当前活动的x,y 坐标
+     * @param taskId
+     */
+    public void findCoordinateByTaskId(String taskId){
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        // 获取流程定义对象ID
+        String processDefinitionId = task.getProcessDefinitionId();
+        // 获取流程定义实体对象
+        ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(processDefinitionId)
+                .singleResult();
+
+    }
 }

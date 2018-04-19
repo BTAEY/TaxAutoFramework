@@ -2,6 +2,7 @@ package com.ey.tax.service;
 
 import com.ey.tax.entity.AttachmentStore;
 import com.ey.tax.exceptions.UploadException;
+import com.ey.tax.utils.PropertiesUtil;
 import com.ey.tax.utils.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,8 +29,9 @@ public class UploadService {
             for(MultipartFile file: multipartFiles){
                 byte[] bytes = file.getBytes();
                 //creating the directory to store file
-                String rootPath = System.getProperty("user.home");
-                File dir = new File(rootPath+File.separator+"tempFiles");
+//                String rootPath = System.getProperty("user.home");
+                String uploadPath = PropertiesUtil.getString("upload.path");
+                File dir = new File(uploadPath);
                 if(!dir.exists()){
                     dir.mkdirs();
                 }

@@ -1,6 +1,7 @@
 package com.ey.tax.web.controller.workflow;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONUtil;
 import com.ey.tax.security.SecurityUser;
@@ -10,6 +11,7 @@ import com.ey.tax.vo.WorkflowInfo;
 import com.ey.tax.web.core.ResponseData;
 import org.activiti.engine.FormService;
 import org.activiti.engine.form.TaskFormData;
+import org.activiti.engine.task.Attachment;
 import org.activiti.engine.task.Task;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
@@ -63,6 +65,16 @@ public class WorkFlowController {
     @ResponseBody
     public String viewImage(@PathVariable String deploymentId){
         InputStream in = workflowFacadeService.getWorkFLowImage(deploymentId);
+        byte[] bytes = IoUtil.readBytes(in);
+        String valueStr = Base64.encode(bytes, Charset.forName("UTF-8"));
+        return valueStr;
+    }
+
+    @RequestMapping(value = "/workflow/viewImageAttachment/{attachmentId}")
+    @ResponseBody
+    public String viewAttachment(@PathVariable String attachmentId){
+        Attachment attachment = workflowFacadeService.getAttachmentById(attachmentId);
+        InputStream in = FileUtil.getInputStream(attachment.getUrl());
         byte[] bytes = IoUtil.readBytes(in);
         String valueStr = Base64.encode(bytes, Charset.forName("UTF-8"));
         return valueStr;
@@ -158,5 +170,17 @@ public class WorkFlowController {
         String reason = request.getParameter("reason");
         workflowFacadeService.delProcessInstance(procInstId,reason);
         return "/workflow/undone";
+    }
+
+    /**
+     * 获取流程图像，已执行节点和流程线高亮显示
+     */
+    @RequestMapping(value="/workflow/viewImage2/{deploymentId}")
+    @ResponseBody
+    public String getActivitiProccessImage(String deploymentId){
+        InputStream in = workflowFacadeService.getWorkFLowImage(deploymentId);
+        byte[] bytes = IoUtil.readBytes(in);
+        String valueStr = Base64.encode(bytes, Charset.forName("UTF-8"));
+        return valueStr;
     }
 }

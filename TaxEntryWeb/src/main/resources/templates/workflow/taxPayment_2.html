@@ -126,6 +126,43 @@
                 </th:block>
             </table>
         </div>
+        <div class="row">
+            <label>附件列表</label>
+            <table class="table">
+                <tr>
+                    <th>#</th>
+                    <th>附件名称</th>
+                </tr>
+                <th:block th:each="attachment,stat : ${attachments}">
+                    <tr th:attr="data-attId=${attachment.id}">
+                        <td th:text="${stat.index+1}"></td>
+                        <td>
+                            <a href="javascript:void(0);" class="task_attachment">
+                                <span th:text="${attachment.name}"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="javascript:void(0);" class="task_attachment">
+                                下载
+                            </a>
+                        </td>
+                    </tr>
+                </th:block>
+            </table>
+        </div>
+        <div class="modal fade" id="calModal" style="text-align: center;" tabindex="-1" role="dialog" aria-labelledby="calModalLabel">
+            <div class="modal-dialog" style="display:inline-block;width:auto;" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     </div>
     <span th:replace="fragments/layout::commonLoadJs"></span>
@@ -140,7 +177,21 @@
             minView: 2,
             forceParse: 0,
             format:'mm/dd/yyyy'
-        })
+        });
+
+        $(".task_attachment").click(function(){
+            var attachmentId = $(this).parent().parent().data("attid");
+            console.log("attachmentId = "+attachmentId);
+            $.get({
+                url:'/workflow/viewImageAttachment/'+attachmentId,
+                dataType:'text',
+                success:function(data){
+                    var viewImg = document.createElement("img");
+                    $(viewImg).attr("src","data:image/jpeg;base64,"+data);
+                    showDialog.call(viewImg,"calModal");
+                }
+            });
+        });
     </script>
 </body>
 </html>
