@@ -1,15 +1,13 @@
 package com.ey.tax.configuration;
 
 import com.ey.tax.configuration.security.SysUserService;
-import com.ey.tax.security.LoginSuccessHandler;
 import com.ey.tax.security.CustomLogoutSuccessHandler;
+import com.ey.tax.security.LoginSuccessHandler;
 import com.ey.tax.service.MyFilterSecurityInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,8 +17,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.multipart.support.MultipartFilter;
 
 /**
  * Created by zhuji on 2/9/2018.

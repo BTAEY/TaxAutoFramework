@@ -1,0 +1,49 @@
+server:
+  port: 9090
+spring:
+  jpa:
+    show-sql: true
+    database: mysql
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        id:
+          new_generator_mappings: true
+  datasource:
+    primary:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://${mysql.db.url}:${mysql.db.port}/${mysql.db.name}?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true
+      username: ${mysql.db.user}
+      password: ${mysql.db.password}
+  devtools:
+    restart:
+      enabled: true
+  thymeleaf:
+    cache: false
+    check-template: false
+    content-type: text/html
+    enable: true
+    encoding: UTF-8
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    decoupled-logic: false
+    authorize-mode: AUTHENTICATED
+  activiti:
+    deployment-name: TaxAutoFramework_Deploy
+    extend:
+      activity-font-name: 宋体
+      label-font-name: 宋体
+      annotation-font-name: 宋体
+      deployment-mode: single-resource
+flyway:
+  baseline-on-migrate: true
+  validate-on-migrate: false
+  locations: db/migration/mysql
+mybatis:
+  type-aliases-package: com.ey.tax.entity,com.ey.tax.model
+  mapper-locations: classpath*:mapper/*.xml
+
+

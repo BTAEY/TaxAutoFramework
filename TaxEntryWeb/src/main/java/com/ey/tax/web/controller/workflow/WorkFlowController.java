@@ -175,10 +175,10 @@ public class WorkFlowController {
     /**
      * 获取流程图像，已执行节点和流程线高亮显示
      */
-    @RequestMapping(value="/workflow/viewImage2/{deploymentId}")
+    @RequestMapping(value="/workflow/viewProgressImage/{procInstId}")
     @ResponseBody
-    public String getActivitiProccessImage(String deploymentId){
-        InputStream in = workflowFacadeService.getWorkFLowImage(deploymentId);
+    public String viewProgressImage(@PathVariable String procInstId){
+        InputStream in = workflowFacadeService.getWorkFlowProgressImage(procInstId);
         byte[] bytes = IoUtil.readBytes(in);
         String valueStr = Base64.encode(bytes, Charset.forName("UTF-8"));
         return valueStr;

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>提交增值税申报表及资料</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/navigation.css}" />
+    <link th:href="@{/plugins/datepicker/css/bootstrap-datetimepicker.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="flex-container">
+    <div th:replace="fragments/layout::navigation"></div>
+
+    <div class="container">
+        <div class="row">
+            <form class="form-horizontal" action="#" th:action="@{/taxPayment/processTask/submit}" method="post" enctype="multipart/form-data">
+                <label>申请人基本信息</label>
+                <hr/>
+                <input type="hidden" name="taskId" th:value="${taskId}"/>
+                <div class="form-group">
+                    <label for="applier">申请人</label>
+                    <input type="text" class="form-control" name="applier" id="applier" placeholder="申请人" th:value="${submitter.applier}"/>
+                </div>
+                <div class="form-group">
+                    <label for="applyDate">申请日期</label>
+                    <div class="input-group date form_date col-sm-5" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                        <input th:type="text" class="form-control" id="applyDate" placeholder="申请日期" readonly="true" name="applyDate"/>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="wfname">流程名称</label>
+                    <input type="text" class="form-control" id="wfname" name="wfname" placeholder="流程名称" th:value="${wfname}"/>
+                </div>
+                <div class="form-group">
+                    <label for="station">申请人岗位</label>
+                    <input type="text" class="form-control" name="station" id="station" placeholder="申请人岗位" th:value="${submitter.station}"/>
+                </div>
+                <div class="form-group">
+                    <label for="organization">申请人机构</label>
+                    <input type="text" class="form-control" name="organization" id="organization" placeholder="申请人机构" th:value="${submitter.organization}"/>
+                </div>
+                <div class="form-group">
+                    <label for="inputFile">附件上传</label>
+                    <input type="file" id="inputFile" name="file"/>
+                </div>
+                <div class="form-group">
+                    <label>批注</label>
+                    <textarea name="comment"></textarea>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="radio" name="toUser" value="maker">To Maker
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="radio" name="toUser" value="general">To General
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+        </div>
+    </div>
+    </div>
+    <span th:replace="fragments/layout::commonLoadJs"></span>
+    <script th:src="@{/plugins/datepicker/js/bootstrap-datetimepicker.min.js}"></script>
+    <script>
+        $(".form_date").datetimepicker({
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0,
+            format:'mm/dd/yyyy'
+        });
+    </script>
+</body>
+</html>

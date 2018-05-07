@@ -52,8 +52,8 @@
                 </tr>
             </th:block>
         </table>
-        <div class="modal fade" id="delProcModal" tabindex="-1" role="dialog" aria-labelledby="calModalLabel">
-            <div class="modal-dialog" role="document">
+        <div class="modal fade" id="delProcModal" style="text-align: center;" tabindex="-1" role="dialog" aria-labelledby="calModalLabel">
+            <div class="modal-dialog" style="display:inline-block;width:auto;"  role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -94,6 +94,21 @@
             var procInstanceId = $(this).parent().parent().data("instanceid");
             $("#procInstId").val(procInstanceId);
             $("#delProcModal").modal();
+        });
+
+        $(".viewProgress").click(function (event) {
+            event.preventDefault();
+            var procInstanceId = $(this).parent().parent().data("instanceid");
+            $.get({
+                url:'/workflow/viewProgressImage/'+procInstanceId,
+                dataType:'text',
+                success:function(data){
+                    console.log(data);
+                    var viewImg = document.createElement("img");
+                    $(viewImg).attr("src","data:image/jpeg;base64,"+data);
+                    showDialog.call(viewImg,"delProcModal");
+                }
+            });
         });
 
         $(document).ready(function(){
