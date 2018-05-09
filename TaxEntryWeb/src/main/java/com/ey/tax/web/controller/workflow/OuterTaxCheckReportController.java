@@ -49,7 +49,7 @@ public class OuterTaxCheckReportController {
     @PostMapping(value = "/workflow/outertaxcheckreport/audit")
     public String audit(String taskId){
         taskService.complete(taskId);
-        return "redirect:/workflowlist/outertaxcheck/listpage";
+        return "redirect:/workflow/outertaxcheck/listpage";
     }
 
 }
