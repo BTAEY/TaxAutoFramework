@@ -12,9 +12,13 @@ import com.ey.tax.utils.StringUtil;
 import com.ey.tax.vo.HistoryCommentVo;
 import com.ey.tax.vo.WorkflowInfo;
 import org.activiti.bpmn.model.Activity;
+import org.activiti.bpmn.model.BaseElement;
 import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.FlowElement;
+import org.activiti.bpmn.model.FlowElementsContainer;
 import org.activiti.bpmn.model.FlowNode;
 import org.activiti.bpmn.model.SequenceFlow;
+import org.activiti.bpmn.model.SubProcess;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.ProcessEngineConfiguration;
@@ -47,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -75,6 +80,9 @@ public class WorkflowFacadeService {
     @Autowired
     private Mapper mapper;
 
+    @Autowired
+    private ProcessEngineConfiguration processEngineConfiguration;
+
     /**
      * 根据 process key 启动工作流
      *
@@ -83,6 +91,10 @@ public class WorkflowFacadeService {
      */
     public ProcessInstance startProcess(String processName) {
         return runtimeService.startProcessInstanceByKey(processName);
+    }
+
+    public ProcessInstance startProcess(String processName,String businessKey){
+        return runtimeService.startProcessInstanceByKey(processName,businessKey);
     }
 
     /**
@@ -95,6 +107,7 @@ public class WorkflowFacadeService {
     public ProcessInstance startProcess(String processName, Map<String, Object> variables) {
         return runtimeService.startProcessInstanceByKey(processName, variables);
     }
+
 
     /**
      * 删除流程
@@ -153,9 +166,6 @@ public class WorkflowFacadeService {
         return in;
     }
 
-    @Autowired
-    private ProcessEngineConfiguration processEngineConfiguration;
-
     public InputStream getWorkFlowProgressImage(String procInstId){
         //  获取历史流程实例
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
@@ -164,6 +174,7 @@ public class WorkflowFacadeService {
         // 获取流程定义
         ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) repositoryService.createProcessDefinitionQuery()
                 .processDefinitionId(historicProcessInstance.getProcessDefinitionId()).singleResult();
+
 
         // 获取流程历史中已执行节点，并按照节点在流程中执行先后顺序排序
         List<HistoricActivityInstance> historicActivityInstanceList = historyService.createHistoricActivityInstanceQuery()
@@ -181,10 +192,9 @@ public class WorkflowFacadeService {
         }
         BpmnModel bpmnModel = repositoryService.getBpmnModel(historicProcessInstance.getProcessDefinitionId());
 
+        FlowElementsContainer flowElementsContainer = bpmnModel.getMainProcess();
         // 已执行的线集合
-        List<String> flowIds = new ArrayList<String>();
-        // 获取流程走过的线 (getHighLightedFlows是下面的方法)
-        flowIds = getHighLightedFlows(bpmnModel, historicActivityInstanceList);
+        List<String> flowIds = getHighLightedFlows(flowElementsContainer,historicActivityInstanceList);
 
         // 获取流程图图像字符流
         ProcessDiagramGenerator pec = processEngineConfiguration.getProcessDiagramGenerator();
@@ -192,47 +202,6 @@ public class WorkflowFacadeService {
         InputStream imageStream = pec.generateDiagram(bpmnModel, "png", executedActivityIdList, flowIds,"宋体","微软雅黑","黑体",null,2.0);
 
         return imageStream;
-    }
-
-    /**
-     * 获取流程图像，已执行节点和流程线高亮显示
-     */
-    public InputStream getActivityProcessImage(String procInstId){
-        //  获取历史流程实例
-        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-                .processInstanceId(procInstId).singleResult();
-        if (historicProcessInstance != null){// 获取流程定义
-            ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) repositoryService.createProcessDefinitionQuery()
-                    .processDefinitionId(historicProcessInstance.getProcessDefinitionId()).singleResult();
-            // 获取流程历史中已执行节点，并按照节点在流程中执行先后顺序排序
-            List<HistoricActivityInstance> historicActivityInstanceList = historyService.createHistoricActivityInstanceQuery()
-                    .processInstanceId(procInstId)
-                    .orderByHistoricActivityInstanceId()
-                    .asc()
-                    .list();
-            // 已执行的节点ID集合
-            List<String> executedActivityIdList = new ArrayList<String>();
-            int index = 1;
-            //获取已经执行的节点ID
-            for (HistoricActivityInstance activityInstance : historicActivityInstanceList) {
-                executedActivityIdList.add(activityInstance.getActivityId());
-                index++;
-            }
-            // 已执行的线集合
-            List<String> flowIds = new ArrayList<String>();
-            // 获取流程走过的线
-            flowIds = getHighLightedFlows(processDefinition, historicActivityInstanceList);
-        }
-        return null;
-    }
-
-    public List<String> getHighLightedFlows( ProcessDefinitionEntity processDefinitionEntity, List<HistoricActivityInstance> historicActivityInstances){
-        List<String> highFlows = new ArrayList<String>();// 用以保存高亮的线flowId
-        for (int i = 0; i < historicActivityInstances.size() - 1; i++) {
-            // 对历史流程节点进行遍历
-//            ActivityImpl activityImpl = processDefinitionEntity .findActivity(historicActivityInstances.get(i) .getActivityId());
-        }
-        return null;
     }
 
     /**
@@ -520,49 +489,62 @@ public class WorkflowFacadeService {
         identityService.createMembership("userId","groupId");
     }
 
-    public List<String> getHighLightedFlows(BpmnModel bpmnModel, List<HistoricActivityInstance> historicActivityInstances)
-    {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //24小时制
+    public List<String> getHighLightedFlows(FlowElementsContainer process,List<HistoricActivityInstance> historicActivityInstances){
         List<String> highFlows = new ArrayList<String>();// 用以保存高亮的线flowId
-
-        for (int i = 0; i < historicActivityInstances.size() - 1; i++)
-        {
-            // 对历史流程节点进行遍历
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //24小时制
+        // 对历史流程节点进行遍历
+        for (int i = 0; i < historicActivityInstances.size() - 1; i++){
+            HistoricActivityInstance currentActivityInst = historicActivityInstances.get(i);
+            String activityId = currentActivityInst.getActivityId();
             // 得到节点定义的详细信息
-            FlowNode activityImpl = (FlowNode)bpmnModel.getMainProcess().getFlowElement(historicActivityInstances.get(i).getActivityId());
+            FlowNode activityImpl = (FlowNode)process.getFlowElement(activityId);
+            // 表示当前节点属于内嵌子流程节点
+            if(activityImpl == null){
+                continue;
+            }
+            //判断是否有子流程
+            if(activityImpl instanceof SubProcess){
+                final SubProcess subProcess = (SubProcess) activityImpl;
+                List<HistoricActivityInstance> subProcessHiActivityInstances = historicActivityInstances.stream().filter((historicActivityInstance) -> {
+                    Map<String,FlowElement> subFlowElementMap = subProcess.getFlowElementMap();
+                    if(subFlowElementMap.containsKey(historicActivityInstance.getActivityId())){
+                        return true;
+                    }
+                    return false;
+                }).collect(Collectors.toList());
+                List<String> subHighlightFlows = getHighLightedFlows(subProcess,subProcessHiActivityInstances);
+                highFlows.addAll(subHighlightFlows);
+            }
 
-
-            List<FlowNode> sameStartTimeNodes = new ArrayList<FlowNode>();// 用以保存后续开始时间相同的节点
+            List<FlowNode> sameStartTimeNodes = new ArrayList<>();// 用以保存后续开始时间相同的节点
             FlowNode sameActivityImpl1 = null;
+            HistoricActivityInstance activityImpl_ = currentActivityInst;// 当前节点
+            //往后遍历历史节点
+            for(int k = i + 1 ; k <= historicActivityInstances.size() - 1; k++){
 
-            HistoricActivityInstance activityImpl_ = historicActivityInstances.get(i);// 第一个节点
-            HistoricActivityInstance activityImp2_ ;
-
-            for(int k = i + 1 ; k <= historicActivityInstances.size() - 1; k++)
-            {
-                activityImp2_ = historicActivityInstances.get(k);// 后续第1个节点
+                HistoricActivityInstance activityImp2_ = historicActivityInstances.get(k);// 后续第1个节点
 
                 if ( activityImpl_.getActivityType().equals("userTask") && activityImp2_.getActivityType().equals("userTask") &&
                         df.format(activityImpl_.getStartTime()).equals(df.format(activityImp2_.getStartTime()))   ) //都是usertask，且主节点与后续节点的开始时间相同，说明不是真实的后继节点
                 {
-
+                    continue;
                 }
                 else
                 {
-                    sameActivityImpl1 = (FlowNode)bpmnModel.getMainProcess().getFlowElement(historicActivityInstances.get(k).getActivityId());//找到紧跟在后面的一个节点
+                    sameActivityImpl1 = (FlowNode)process.getFlowElement(historicActivityInstances.get(k).getActivityId());//找到紧跟在后面的一个节点
                     break;
                 }
-
             }
-            sameStartTimeNodes.add(sameActivityImpl1); // 将后面第一个节点放在时间相同节点的集合里
-            for (int j = i + 1; j < historicActivityInstances.size() - 1; j++)
-            {
+            // 将后面第一个节点放在时间相同节点的集合里
+            sameStartTimeNodes.add(sameActivityImpl1);
+
+            for (int j = i + 1; j < historicActivityInstances.size() - 1; j++){
                 HistoricActivityInstance activityImpl1 = historicActivityInstances.get(j);// 后续第一个节点
                 HistoricActivityInstance activityImpl2 = historicActivityInstances.get(j + 1);// 后续第二个节点
 
                 if (df.format(activityImpl1.getStartTime()).equals(df.format(activityImpl2.getStartTime()))  )
                 {// 如果第一个节点和第二个节点开始时间相同保存
-                    FlowNode sameActivityImpl2 = (FlowNode)bpmnModel.getMainProcess().getFlowElement(activityImpl2.getActivityId());
+                    FlowNode sameActivityImpl2 = (FlowNode)process.getFlowElement(activityImpl2.getActivityId());
                     sameStartTimeNodes.add(sameActivityImpl2);
                 }
                 else
@@ -570,19 +552,19 @@ public class WorkflowFacadeService {
                     break;
                 }
             }
-            List<SequenceFlow> pvmTransitions = activityImpl.getOutgoingFlows() ; // 取出节点的所有出去的线
+            // 取出节点的所有出去的线
+            List<SequenceFlow> pvmTransitions = activityImpl.getOutgoingFlows() ;
 
-            for (SequenceFlow pvmTransition : pvmTransitions)
-            {// 对所有的线进行遍历
-
-                FlowNode pvmActivityImpl = (FlowNode)bpmnModel.getMainProcess().getFlowElement( pvmTransition.getTargetRef());// 如果取出的线的目标节点存在时间相同的节点里，保存该线的id，进行高亮显示
+            // 对所有的线进行遍历
+            for (SequenceFlow pvmTransition : pvmTransitions){
+                // 如果取出的线的目标节点存在时间相同的节点里，保存该线的id，进行高亮显示
+                FlowNode pvmActivityImpl = (FlowNode)process.getFlowElement(pvmTransition.getTargetRef());
                 if (sameStartTimeNodes.contains(pvmActivityImpl)) {
                     highFlows.add(pvmTransition.getId());
                 }
             }
-
         }
-        return highFlows;
 
+        return highFlows;
     }
 }

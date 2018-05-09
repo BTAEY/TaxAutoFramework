@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="OuterTaxCheck" name="外部税务检查流程" isExecutable="true">
+    <documentation>包含外部税务检查报告提交子流程</documentation>
+    <startEvent id="startNode" name="开始"></startEvent>
+    <userTask id="t1" name="总行财务审批" activiti:assignee="4" activiti:formKey="workflow/outertaxcheck/step1">
+      <extensionElements>
+        <modeler:activiti-idm-assignee xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
+        <modeler:assignee-info-firstname xmlns:modeler="http://activiti.com/modeler"><![CDATA[maker]]></modeler:assignee-info-firstname>
+        <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="s1" name="检查报告流程数据准备服务" activiti:class="com.ey.tax.workflow.service.GenerateOuterCheckReportService"></serviceTask>
+    <subProcess id="subprocess1" name="外部检查报告子流程">
+      <multiInstanceLoopCharacteristics isSequential="true">
+        <loopCardinality>${loopNum}</loopCardinality>
+        <completionCondition>${nrOfCompletedInstances/nrOfInstances  == 1}</completionCondition>
+      </multiInstanceLoopCharacteristics>
+      <userTask id="st1" name="提交检查报告" activiti:assignee="4" activiti:formKey="workflow/outertaxcheckreport/step1">
+        <extensionElements>
+          <modeler:activiti-idm-assignee xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
+          <modeler:assignee-info-firstname xmlns:modeler="http://activiti.com/modeler"><![CDATA[maker]]></modeler:assignee-info-firstname>
+          <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+        </extensionElements>
+      </userTask>
+      <userTask id="st2" name="总行财务审批" activiti:assignee="4" activiti:formKey="workflow/outertaxcheckreport/step2">
+        <extensionElements>
+          <modeler:activiti-idm-assignee xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
+          <modeler:assignee-info-firstname xmlns:modeler="http://activiti.com/modeler"><![CDATA[maker]]></modeler:assignee-info-firstname>
+          <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+        </extensionElements>
+      </userTask>
+      <endEvent id="subprocess_end"></endEvent>
+      <startEvent id="subprocess_start">
+        <extensionElements>
+          <activiti:executionListener event="start" class="com.ey.tax.workflow.service.SubProcessStartDateService"></activiti:executionListener>
+        </extensionElements>
+      </startEvent>
+      <intermediateCatchEvent id="subtimerstart" name="定时器">
+        <timerEventDefinition>
+          <timeDate>${startDate}</timeDate>
+        </timerEventDefinition>
+      </intermediateCatchEvent>
+      <sequenceFlow id="sc2" sourceRef="subtimerstart" targetRef="st1"></sequenceFlow>
+      <sequenceFlow id="sc1" sourceRef="subprocess_start" targetRef="subtimerstart"></sequenceFlow>
+      <sequenceFlow id="sc3" name="提交" sourceRef="st1" targetRef="st2"></sequenceFlow>
+      <sequenceFlow id="sc4" name="审核通过" sourceRef="st2" targetRef="subprocess_end"></sequenceFlow>
+    </subProcess>
+    <userTask id="t2" name="支行提交税局反馈" activiti:assignee="4" activiti:formKey="workflow/outertaxcheck/step2">
+      <extensionElements>
+        <modeler:activiti-idm-assignee xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
+        <modeler:assignee-info-firstname xmlns:modeler="http://activiti.com/modeler"><![CDATA[maker]]></modeler:assignee-info-firstname>
+        <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+      </extensionElements>
+    </userTask>
+    <endEvent id="endNode"></endEvent>
+    <sequenceFlow id="c1" sourceRef="startNode" targetRef="t1"></sequenceFlow>
+    <sequenceFlow id="c2" name="通过" sourceRef="t1" targetRef="s1"></sequenceFlow>
+    <sequenceFlow id="c3" sourceRef="s1" targetRef="subprocess1"></sequenceFlow>
+    <sequenceFlow id="c4" name="获取反馈" sourceRef="subprocess1" targetRef="t2"></sequenceFlow>
+    <sequenceFlow id="c5" name="完结" sourceRef="t2" targetRef="endNode"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_OuterTaxCheck">
+    <bpmndi:BPMNPlane bpmnElement="OuterTaxCheck" id="BPMNPlane_OuterTaxCheck">
+      <bpmndi:BPMNShape bpmnElement="startNode" id="BPMNShape_startNode">
+        <omgdc:Bounds height="30.0" width="30.0" x="90.0" y="160.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="t1" id="BPMNShape_t1">
+        <omgdc:Bounds height="80.0" width="100.0" x="255.0" y="135.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="s1" id="BPMNShape_s1">
+        <omgdc:Bounds height="80.0" width="100.0" x="495.0" y="135.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess1" id="BPMNShape_subprocess1">
+        <omgdc:Bounds height="233.0" width="732.5" x="120.0" y="285.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="st1" id="BPMNShape_st1">
+        <omgdc:Bounds height="80.0" width="100.0" x="345.0" y="336.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="st2" id="BPMNShape_st2">
+        <omgdc:Bounds height="80.0" width="100.0" x="540.0" y="336.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess_end" id="BPMNShape_subprocess_end">
+        <omgdc:Bounds height="28.0" width="28.0" x="735.0" y="362.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess_start" id="BPMNShape_subprocess_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="150.0" y="361.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subtimerstart" id="BPMNShape_subtimerstart">
+        <omgdc:Bounds height="31.0" width="31.0" x="240.0" y="360.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="t2" id="BPMNShape_t2">
+        <omgdc:Bounds height="80.0" width="100.0" x="420.0" y="585.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endNode" id="BPMNShape_endNode">
+        <omgdc:Bounds height="28.0" width="28.0" x="456.0" y="765.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="c3" id="BPMNEdge_c3">
+        <omgdi:waypoint x="545.0" y="215.0"></omgdi:waypoint>
+        <omgdi:waypoint x="545.0" y="285.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sc1" id="BPMNEdge_sc1">
+        <omgdi:waypoint x="180.0" y="376.0"></omgdi:waypoint>
+        <omgdi:waypoint x="240.0" y="376.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="c4" id="BPMNEdge_c4">
+        <omgdi:waypoint x="470.0" y="519.4854231960732"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="585.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sc3" id="BPMNEdge_sc3">
+        <omgdi:waypoint x="445.0" y="376.0"></omgdi:waypoint>
+        <omgdi:waypoint x="540.0" y="376.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="c5" id="BPMNEdge_c5">
+        <omgdi:waypoint x="470.0" y="665.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="765.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sc2" id="BPMNEdge_sc2">
+        <omgdi:waypoint x="271.9998964866937" y="376.44244641551546"></omgdi:waypoint>
+        <omgdi:waypoint x="345.0" y="376.1798561151079"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sc4" id="BPMNEdge_sc4">
+        <omgdi:waypoint x="640.0" y="376.0"></omgdi:waypoint>
+        <omgdi:waypoint x="735.0" y="376.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="c1" id="BPMNEdge_c1">
+        <omgdi:waypoint x="120.0" y="175.0"></omgdi:waypoint>
+        <omgdi:waypoint x="255.0" y="175.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="c2" id="BPMNEdge_c2">
+        <omgdi:waypoint x="355.0" y="175.0"></omgdi:waypoint>
+        <omgdi:waypoint x="495.0" y="175.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

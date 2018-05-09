@@ -15,40 +15,35 @@ import javax.persistence.TemporalType;
 import java.util.Date;
 
 /**
- * Created by zhuji on 2/8/2018.
+ * Created by zhuji on 5/9/2018.
  */
 @MappedSuperclass
 @JsonIgnoreProperties(value = {"createDate", "updateDate"},
         allowGetters = true)
 @EntityListeners(AuditingEntityListener.class)
-public class AccessoryEntity extends BaseEntity {
+public class Auditable extends BaseEntity{
+    private static final long serialVersionUID = -741494179074050420L;
 
-    private static final long serialVersionUID = -1346162292462030381L;
-
-    @Column(name = "CREATEMAN", insertable = true, updatable = false)
     @CreatedBy
-    private String createMan;
+    private String createBy;
 
-    @Column(name="CREATEDATE", insertable = true, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     private Date createDate;
 
-    @Column(name = "UPDATEMAN")
     @LastModifiedBy
-    private String updateMan;
+    private String lastModifiedBy;
 
-    @Column(name="UPDATEDATE")
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
-    private Date updateDate;
+    private Date lastModifiedDate;
 
-    public String getCreateMan() {
-        return createMan;
+    public String getCreateBy() {
+        return createBy;
     }
 
-    public void setCreateMan(String createMan) {
-        this.createMan = createMan;
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
     }
 
     public Date getCreateDate() {
@@ -59,19 +54,19 @@ public class AccessoryEntity extends BaseEntity {
         this.createDate = createDate;
     }
 
-    public String getUpdateMan() {
-        return updateMan;
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
     }
 
-    public void setUpdateMan(String updateMan) {
-        this.updateMan = updateMan;
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
     }
 
-    public Date getUpdateDate() {
-        return updateDate;
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
     }
 
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 }

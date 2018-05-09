@@ -219,7 +219,9 @@ public final class DateUtil extends DateUtils {
         CHINESE_FORMAT("yyyy-MM-dd hh:mm:ss"),
         SHORT_CHINESE_FORMAT("yyyy-MM-dd"),
         US_FORMAT("MM/dd/yyyy hh:mm:ss"),
-        SHORT_US_FORMAT("MM/dd/yyyy");
+        SHORT_US_FORMAT("MM/dd/yyyy"),
+        UK_FORMAT("dd/MM/yyyy hh:mm:ss"),
+        SHORT_UK_FORMAT("dd/MM/yyyy");
 
         String format;
 
@@ -272,4 +274,219 @@ public final class DateUtil extends DateUtils {
         }).toArray(String.class);
         return parseDate(dateStr,parsePatterns);
     }
+
+    ////////////////////////////////////////////////////////////////
+    enum DateField {
+
+        /**
+         * 年
+         * @see Calendar#YEAR
+         */
+        YEAR(Calendar.YEAR),
+        /**
+         * 月
+         * @see Calendar#MONTH
+         */
+        MONTH(Calendar.MONTH),
+        /**
+         * 一年中第几周
+         * @see Calendar#WEEK_OF_YEAR
+         */
+        WEEK_OF_YEAR(Calendar.WEEK_OF_YEAR),
+        /**
+         * 一月中第几周
+         * @see Calendar#WEEK_OF_MONTH
+         */
+        WEEK_OF_MONTH(Calendar.WEEK_OF_MONTH),
+        /**
+         * 一月中的第几天
+         * @see Calendar#DAY_OF_MONTH
+         */
+        DAY_OF_MONTH(Calendar.DAY_OF_MONTH),
+        /**
+         *一年中的第几天
+         * @see Calendar#DAY_OF_YEAR
+         */
+        DAY_OF_YEAR(Calendar.DAY_OF_YEAR),
+        /**
+         *周几，1表示周日，2表示周一
+         * @see Calendar#DAY_OF_WEEK
+         */
+        DAY_OF_WEEK(Calendar.DAY_OF_WEEK),
+        /**
+         * 天所在的周是这个月的第几周
+         * @see Calendar#DAY_OF_WEEK_IN_MONTH
+         */
+        DAY_OF_WEEK_IN_MONTH(Calendar.DAY_OF_WEEK_IN_MONTH),
+        /**
+         * 上午或者下午
+         * @see Calendar#AM_PM
+         */
+        AM_PM(Calendar.AM_PM),
+        /**
+         * 小时，用于12小时制
+         * @see Calendar#HOUR
+         */
+        HOUR(Calendar.HOUR),
+        /**
+         * 小时，用于24小时制
+         * @see Calendar#HOUR
+         */
+        HOUR_OF_DAY(Calendar.HOUR_OF_DAY),
+        /**
+         * 分钟
+         * @see Calendar#MINUTE
+         */
+        MINUTE(Calendar.MINUTE),
+        /**
+         * 秒
+         * @see Calendar#SECOND
+         */
+        SECOND(Calendar.SECOND),
+        /**
+         * 毫秒
+         * @see Calendar#MILLISECOND
+         */
+        MILLISECOND(Calendar.MILLISECOND);
+
+        // ---------------------------------------------------------------
+        private int value;
+
+        private DateField(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
+
+        /**
+         * 将 {@link Calendar}相关值转换为DatePart枚举对象<br>
+         *
+         * @param calendarPartIntValue Calendar中关于Week的int值
+         */
+        public static DateField of(int calendarPartIntValue) {
+            switch (calendarPartIntValue) {
+                case Calendar.YEAR:
+                    return YEAR;
+                case Calendar.MONTH:
+                    return MONTH;
+                case Calendar.WEEK_OF_YEAR:
+                    return WEEK_OF_YEAR;
+                case Calendar.WEEK_OF_MONTH:
+                    return WEEK_OF_MONTH;
+                case Calendar.DAY_OF_MONTH:
+                    return DAY_OF_MONTH;
+                case Calendar.DAY_OF_YEAR:
+                    return DAY_OF_YEAR;
+                case Calendar.DAY_OF_WEEK:
+                    return DAY_OF_WEEK;
+                case Calendar.DAY_OF_WEEK_IN_MONTH:
+                    return DAY_OF_WEEK_IN_MONTH;
+                case Calendar.MINUTE:
+                    return MINUTE;
+                case Calendar.SECOND:
+                    return SECOND;
+                case Calendar.MILLISECOND:
+                    return MILLISECOND;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    enum DateUnit {
+        /** 一毫秒 */
+        MS(1),
+        /** 一秒的毫秒数 */
+        SECOND(1000),
+        /**一分钟的毫秒数 */
+        MINUTE(SECOND.getMillis() * 60),
+        /**一小时的毫秒数 */
+        HOUR(MINUTE.getMillis() * 60),
+        /**一天的毫秒数 */
+        DAY(HOUR.getMillis() * 24),
+        /**一周的毫秒数 */
+        WEEK(DAY.getMillis() * 7);
+
+        private long millis;
+        DateUnit(long millis){
+            this.millis = millis;
+        }
+
+        /**
+         * @return 单位对应的毫秒数
+         */
+        public long getMillis(){
+            return this.millis;
+        }
+    }
+    
+    /**
+     * 转换为Calendar对象
+     *
+     * @param date 日期对象
+     * @return Calendar对象
+     */
+    public static Calendar calendar(Date date) {
+        return calendar(date.getTime());
+    }
+
+    /**
+     * 转换为Calendar对象
+     *
+     * @param millis 时间戳
+     * @return Calendar对象
+     */
+    public static Calendar calendar(long millis) {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(millis);
+        return cal;
+    }
+
+    public static Calendar getTimeOfDay(Calendar c,int hour,int min,int sec,int millisec){
+        c.set(Calendar.HOUR_OF_DAY, hour);
+        c.set(Calendar.MINUTE, min);
+        c.set(Calendar.SECOND, sec);
+        c.set(Calendar.MILLISECOND, millisec);
+        return c;
+    }
+
+    /**
+     * 获取一天开始时间
+     * @param c
+     * @return
+     */
+    public static Date beginOfDay(Calendar c){
+        return getTimeOfDay(c,0,0,0,0).getTime();
+    }
+
+    public static Date beginOfDay(Date date){
+        return getTimeOfDay(calendar(date),0,0,0,0).getTime();
+    }
+
+    public static Date offset(Date date, DateField dateField, int offset) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(dateField.getValue(), offset);
+        return cal.getTime();
+    }
+
+    public static Date tomorrow(Date currentDate){
+        return offset(currentDate,DateField.DAY_OF_YEAR,1);
+    }
+
+    /**
+     * 相差天数
+     * @param begin
+     * @param end
+     * @return
+     */
+    public static long betweenDay(Date begin,Date end){
+        begin = beginOfDay(begin);
+        end = beginOfDay(end);
+        long diff = end.getTime() - begin.getTime();
+        return diff / DateUnit.DAY.getMillis();
+    }
+
 }

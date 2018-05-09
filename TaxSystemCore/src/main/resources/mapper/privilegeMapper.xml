@@ -7,10 +7,10 @@
         <result property="enable" column="enable"/>
         <result property="loginCount" column="login_count"/>
         <result property="loginStatus" column="login_status" typeHandler="com.ey.tax.common.handler.HasCodeEnumHandler"/>
-        <result property="createman" column="createman"/>
-        <result property="createdate" column="createdate"/>
-        <result property="updateman" column="updateman"/>
-        <result property="updatedate" column="updatedate"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createDate" column="create_date"/>
+        <result property="lastModifiedBy" column="last_modified_by"/>
+        <result property="lastModifiedDate" column="last_modified_date"/>
         <result property="headerImg" column="header_img"/>
         <collection property="roles" resultMap="roleResultMap"/>
     </resultMap>
@@ -59,10 +59,10 @@
             tsu.enable,
             tsu.login_count,
             tsu.login_status,
-            tsu.createman,
-            tsu.createdate,
-            tsu.updateman,
-            tsu.updatedate,
+            tsu.create_by,
+            tsu.create_date,
+            tsu.last_modified_by,
+            tsu.last_modified_date,
             tsu.header_img,
             tsr.role_name,
             tsr.pid as ROLE_PID
@@ -85,10 +85,10 @@
             tsu.enable,
             tsu.login_count,
             tsu.login_status,
-            tsu.createman,
-            tsu.createdate,
-            tsu.updateman,
-            tsu.updatedate,
+            tsu.create_by,
+            tsu.create_date,
+            tsu.last_modified_by,
+            tsu.last_modified_date,
             tsu.header_img,
             tsr.role_name,
             tsr.pid as ROLE_PID

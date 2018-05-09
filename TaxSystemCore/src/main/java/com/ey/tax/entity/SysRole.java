@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Entity
 @Table(name="t_sys_role")
-public class SysRole extends AccessoryEntity {
+public class SysRole extends Auditable {
     @Column(name = "role_name")
     private String roleName;
 

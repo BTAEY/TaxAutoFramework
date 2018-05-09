@@ -29,7 +29,7 @@ import java.util.Map;
  * Created by zhuji on 2/8/2018.
  */
 @SpringBootApplication(exclude = ThymeleafAutoConfiguration.class)
-@EnableJpaAuditing
+//@EnableJpaAuditing
 @MapperScan("com.ey.tax.core.dao")
 public class ApplicationBootEntry extends SpringBootServletInitializer {
     private static final String GLOBAL_CONFIG_PROPERTIES = "globalConfig";

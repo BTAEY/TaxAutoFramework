@@ -16,7 +16,6 @@ import java.io.Serializable;
  * 基础字段， 包含主键id（默认采用ID自增）, version
  */
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity implements Serializable,Cloneable{
 
     private static final long serialVersionUID = 4193639506903096974L;

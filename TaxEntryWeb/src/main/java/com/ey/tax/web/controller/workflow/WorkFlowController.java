@@ -115,7 +115,7 @@ public class WorkFlowController {
     @RequestMapping(value = "/workflow/pending" , method = RequestMethod.GET)
     public ModelAndView pendingTask(Authentication authentication){
         SecurityUser currentUser = (SecurityUser) authentication.getPrincipal();
-        List<Task> taskList = workflowFacadeService.findTaskByUserId(currentUser.getUsername());
+        List<Task> taskList = workflowFacadeService.findTaskByUserId(currentUser.getId().toString());
         List<ActTaskVo> taskVoList = taskList.stream().map(t -> {
            ActTaskVo taskVo = new ActTaskVo();
             taskVo.setProcId(t.getProcessInstanceId());

@@ -11,7 +11,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="t_sys_user")
-public class SysUser extends AccessoryEntity{
+public class SysUser extends Auditable{
     @Column(name="username")
     private String userName;
 

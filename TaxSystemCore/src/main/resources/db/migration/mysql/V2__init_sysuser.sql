@@ -1,24 +1,24 @@
 CREATE TABLE if not exists `t_sys_organization` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `version` int(11) NOT NULL,
-  `createdate` datetime DEFAULT NULL,
-  `createman` varchar(255) DEFAULT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `updateman` varchar(255) DEFAULT NULL,
+  `create_date` datetime DEFAULT NULL,
+  `create_by` varchar(255) DEFAULT NULL,
+  `last_modified_date` datetime DEFAULT NULL,
+  `last_modified_by` varchar(255) DEFAULT NULL,
   `org_name` varchar(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into t_sys_organization(id,version,createman,createdate,org_name,description) values (1,0,'admin',sysdate(),'总行','根组织机构');
+insert into t_sys_organization(id,version,create_by,create_date,org_name,description) values (1,0,'admin',sysdate(),'总行','根组织机构');
 
 CREATE TABLE if not exists `t_sys_user` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `version` int(11) NOT NULL,
-  `createdate` datetime DEFAULT NULL,
-  `createman` varchar(255) DEFAULT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `updateman` varchar(255) DEFAULT NULL,
+  `create_date` datetime DEFAULT NULL,
+  `create_by` varchar(255) DEFAULT NULL,
+  `last_modified_date` datetime DEFAULT NULL,
+  `last_modified_by` varchar(255) DEFAULT NULL,
   `enable` bit(1) DEFAULT NULL,
   `login_count` int(11) DEFAULT NULL,
   `login_status` varchar(255) DEFAULT NULL,
@@ -37,19 +37,19 @@ insert into t_sys_user(id,username,password,enable,login_count,version) values (
 CREATE TABLE if NOT EXISTS `t_sys_role` (
  `id` bigint(20) NOT NULL AUTO_INCREMENT,
  `version` int(11) NOT NULL,
- `createdate` datetime DEFAULT NULL,
- `createman` varchar(255) DEFAULT NULL,
- `updatedate` datetime DEFAULT NULL,
- `updateman` varchar(255) DEFAULT NULL,
+ `create_date` datetime DEFAULT NULL,
+ `create_by` varchar(255) DEFAULT NULL,
+ `last_modified_date` datetime DEFAULT NULL,
+ `last_modified_by` varchar(255) DEFAULT NULL,
  `role_name` varchar(255) DEFAULT NULL,
   `pid` int(11) DEFAULT NULL,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- 超级管理员角色
-insert into t_sys_role(id,role_name,version,createman,createdate) values (1,'role_admin',0,1,sysdate());
+insert into t_sys_role(id,role_name,version,create_by,create_date) values (1,'role_admin',0,1,sysdate());
 -- 普通角色
-insert into t_sys_role(id,role_name,version,createman,createdate) values (2,'role_general',0,1,sysdate());
+insert into t_sys_role(id,role_name,version,create_by,create_date) values (2,'role_general',0,1,sysdate());
 
 CREATE TABLE IF NOT EXISTS `t_sys_org_user_ref` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -82,10 +82,10 @@ insert into t_sys_user_role_ref(user_id,role_id,version) values (5,2,0);
 CREATE TABLE if not EXISTS `t_sys_permission` (
  `id` bigint(20) NOT NULL AUTO_INCREMENT,
  `version` int(11) NOT NULL,
- `createdate` datetime DEFAULT NULL,
- `createman` varchar(255) DEFAULT NULL,
- `updatedate` datetime DEFAULT NULL,
- `updateman` varchar(255) DEFAULT NULL,
+ `create_date` datetime DEFAULT NULL,
+ `create_by` varchar(255) DEFAULT NULL,
+ `last_modified_date` datetime DEFAULT NULL,
+ `last_modified_by` varchar(255) DEFAULT NULL,
  `description` varchar(255) DEFAULT NULL,
  `name` varchar(255) DEFAULT NULL,
  `pid` bigint(20) DEFAULT NULL,
@@ -154,4 +154,5 @@ insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,7,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,8,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,9,0);
 insert into t_sys_role_menu_ref(role_id,menu_id,version) values (2,10,0);
+
 

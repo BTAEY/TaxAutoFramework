@@ -9,7 +9,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="t_sys_organization")
-public class SysOrganization extends AccessoryEntity {
+public class SysOrganization extends Auditable {
 
     @Column(name="org_name")
     private String orgName;

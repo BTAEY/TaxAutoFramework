@@ -52,19 +52,19 @@
                     </li>
                     <li>
                         <div class="col-lg-3">Create Man: </div>
-                        <div class="col-lg-8"><span th:text="${userInfo.createman}"/></div>
+                        <div class="col-lg-8"><span th:text="${userInfo.createBy}"/></div>
                     </li>
                     <li>
                         <div class="col-lg-3">Create Date: </div>
-                        <div class="col-lg-8"><span th:text="${userInfo.createdate}"/></div>
+                        <div class="col-lg-8"><span th:text="${userInfo.createDate}"/></div>
                     </li>
                     <li>
                         <div class="col-lg-3">Update Man: </div>
-                        <div class="col-lg-8"><span th:text="${userInfo.updateman}"/></div>
+                        <div class="col-lg-8"><span th:text="${userInfo.lastModifiedBy}"/></div>
                     </li>
                     <li>
                         <div class="col-lg-3">Update Date: </div>
-                        <div class="col-lg-8"><span th:text="${#dates.format(userInfo.updatedate,'yyyy-MM-dd HH:mm:ss')}"/></div>
+                        <div class="col-lg-8"><span th:text="${#dates.format(userInfo.lastModifiedDate,'yyyy-MM-dd HH:mm:ss')}"/></div>
                     </li>
                 </ul>
             </nav>

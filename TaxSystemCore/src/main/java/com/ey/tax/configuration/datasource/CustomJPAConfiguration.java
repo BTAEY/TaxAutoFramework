@@ -1,5 +1,6 @@
 package com.ey.tax.configuration.datasource;
 
+import com.ey.tax.entity.AuditorAwareImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -9,9 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -34,6 +38,7 @@ import java.util.Map;
         transactionManagerRef = "primaryTransactionManager",
         basePackages = {"com.ey.tax"}
 )
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @Import({MultipleDataSourceConfiguration.class})
 public class CustomJPAConfiguration {
     @Autowired
@@ -62,5 +67,10 @@ public class CustomJPAConfiguration {
 
     private Map<String, String> getVendorProperties(DataSource dataSource) {
         return jpaProperties.getHibernateProperties(dataSource);
+    }
+
+    @Bean
+    public AuditorAware<String> auditorAware(){
+        return new AuditorAwareImpl();
     }
 }

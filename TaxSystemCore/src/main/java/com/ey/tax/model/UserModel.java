@@ -21,13 +21,13 @@ public class UserModel {
 
     private Integer loginCount;
 
-    private String createman;
+    private String createBy;
 
-    private Date createdate;
+    private Date createDate;
 
-    private String updateman;
+    private String lastModifiedBy;
 
-    private Date updatedate;
+    private Date lastModifiedDate;
 
     private String headerImg;
 
@@ -79,43 +79,43 @@ public class UserModel {
         this.loginCount = loginCount;
     }
 
-    public String getCreateman() {
-        return createman;
-    }
-
-    public void setCreateman(String createman) {
-        this.createman = createman;
-    }
-
-    public Date getCreatedate() {
-        return createdate;
-    }
-
-    public void setCreatedate(Date createdate) {
-        this.createdate = createdate;
-    }
-
-    public String getUpdateman() {
-        return updateman;
-    }
-
-    public void setUpdateman(String updateman) {
-        this.updateman = updateman;
-    }
-
-    public Date getUpdatedate() {
-        return updatedate;
-    }
-
-    public void setUpdatedate(Date updatedate) {
-        this.updatedate = updatedate;
-    }
-
     public String getHeaderImg() {
         return headerImg;
     }
 
     public void setHeaderImg(String headerImg) {
         this.headerImg = headerImg;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 }
