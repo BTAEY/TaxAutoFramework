@@ -7,6 +7,8 @@ import com.ey.tax.entity.OuterTaxCheck;
 import com.ey.tax.entity.OuterTaxCheckReporter;
 import com.ey.tax.security.SecurityUser;
 import com.ey.tax.service.ReportFrequencyHelper;
+import com.ey.tax.service.TaskPropertyResolver;
+import com.ey.tax.service.TaskPropertyResolverAdapter;
 import com.ey.tax.service.WorkflowFacadeService;
 import com.ey.tax.utils.DateUtil;
 import com.ey.tax.utils.PropertiesUtil;
@@ -81,15 +83,15 @@ public class OuterTaxCheckController {
         outerTaxCheck.setWorkflowKey(workflowkey);
         outerTaxCheck = outerTaxCheckService.saveOrUpdate(outerTaxCheck);
         //启动流程
-        workflowFacadeService.startProcess(workflowkey,outerTaxCheck.getId().toString());
+        runtimeService.startProcessInstanceByKey(workflowkey,outerTaxCheck.getId().toString());
         return "redirect:/workflow/outertaxcheck/listpage";
     }
 
     @GetMapping(value = "/workflow/outertaxcheck/step1/{taskId}")
     public ModelAndView step1(@PathVariable String taskId){
         ModelAndView mav = new ModelAndView("/workflow/outertaxcheck/step1");
-        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
-        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+        Task task = workflowFacadeService.findTask(taskId);
+        ProcessInstance pi = workflowFacadeService.findProcessInstance(task.getProcessInstanceId());
         String bk = pi.getBusinessKey();
         OuterTaxCheck outerTaxCheck = outerTaxCheckService.findById(Long.valueOf(bk));
         List<WorkflowInfo> workflowInfoList = workflowFacadeService.findAllDefinedWorkflowList();
@@ -110,8 +112,7 @@ public class OuterTaxCheckController {
     @PostMapping(value = "/workflow/outertaxcheck/audit")
     public String audit(String taskId,Authentication authentication){
         SecurityUser user = (SecurityUser) authentication.getPrincipal();
-//        taskService.claim(taskId,user.getId());
-        taskService.complete(taskId);
+        workflowFacadeService.completeTask(taskId,new TaskPropertyResolverAdapter());
         return "redirect:/workflowlist";
     }
 

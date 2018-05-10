@@ -10,6 +10,7 @@ import com.ey.tax.vo.ActTaskVo;
 import com.ey.tax.vo.WorkflowInfo;
 import com.ey.tax.web.core.ResponseData;
 import org.activiti.engine.FormService;
+import org.activiti.engine.RuntimeService;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.task.Attachment;
 import org.activiti.engine.task.Task;
@@ -44,6 +45,9 @@ public class WorkFlowController {
 
     @Autowired
     private FormService formService;
+
+    @Autowired
+    private RuntimeService runtimeService;
 
     @RequestMapping(value = "/workflow/deploy/{wfKey}")
     @ResponseBody
@@ -92,7 +96,7 @@ public class WorkFlowController {
     public String startWf(@PathVariable String wfKey){
         WorkflowInfo workflowInfo = workflowFacadeService.getWorkFlowInfoByKey(wfKey);
         try {
-            workflowFacadeService.startProcess(wfKey);
+            runtimeService.startProcessInstanceByKey(wfKey);
             ResponseData responseData = new ResponseData(ResponseData.Status.SUCCESS);
             responseData.setMessage("流程【"+workflowInfo.getName()+"】启动成功");
             return JSONUtil.toJsonStr(responseData);
@@ -163,12 +167,17 @@ public class WorkFlowController {
         return "";
     }
 
+    /**
+     * 删除流程
+     * @param request
+     * @return
+     */
     @RequestMapping(value="/workflow/delProc",method = RequestMethod.POST)
     @ResponseBody
     public String deleteProcessInstance(HttpServletRequest request){
         String procInstId = request.getParameter("procInstId");
         String reason = request.getParameter("reason");
-        workflowFacadeService.delProcessInstance(procInstId,reason);
+        runtimeService.deleteProcessInstance(procInstId,reason);
         return "/workflow/undone";
     }
 

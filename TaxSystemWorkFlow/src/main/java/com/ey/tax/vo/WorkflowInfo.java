@@ -18,6 +18,8 @@ public class WorkflowInfo implements Serializable{
 
     private String key;
 
+    private String businessKey;
+
     private Date deployDate;
 
     private String description;
@@ -39,6 +41,7 @@ public class WorkflowInfo implements Serializable{
         this.deploymentId = builder.deploymentId;
         this.name = builder.name;
         this.key = builder.key;
+        this.businessKey = builder.businessKey;
         this.deployDate = builder.deployDate;
         this.description = builder.description;
         this.resourceName = builder.resourceName;
@@ -160,6 +163,8 @@ public class WorkflowInfo implements Serializable{
 
         private String key;
 
+        private String businessKey;
+
         private Date deployDate;
 
         private String description;
@@ -191,6 +196,11 @@ public class WorkflowInfo implements Serializable{
 
         public Builder key(String key){
             this.key = key;
+            return this;
+        }
+
+        public Builder businessKey(String businessKey){
+            this.businessKey = businessKey;
             return this;
         }
 

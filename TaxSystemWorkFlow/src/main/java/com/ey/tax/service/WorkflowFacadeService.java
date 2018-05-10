@@ -6,13 +6,12 @@ import cn.hutool.http.HtmlUtil;
 import com.ey.tax.common.AttachmentEnums;
 import com.ey.tax.core.dao.WorkFlowDAO;
 import com.ey.tax.entity.AttachmentStore;
+import com.ey.tax.enums.WorkFlowState;
 import com.ey.tax.model.CommentModel;
 import com.ey.tax.utils.PropertiesUtil;
 import com.ey.tax.utils.StringUtil;
 import com.ey.tax.vo.HistoryCommentVo;
 import com.ey.tax.vo.WorkflowInfo;
-import org.activiti.bpmn.model.Activity;
-import org.activiti.bpmn.model.BaseElement;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.FlowElement;
 import org.activiti.bpmn.model.FlowElementsContainer;
@@ -21,6 +20,7 @@ import org.activiti.bpmn.model.SequenceFlow;
 import org.activiti.bpmn.model.SubProcess;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
+import org.activiti.engine.ManagementService;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
@@ -30,16 +30,17 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.persistence.entity.GroupEntityImpl;
-import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.runtime.Job;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Attachment;
-import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
 import org.activiti.image.ProcessDiagramGenerator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,10 +49,11 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -59,6 +61,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class WorkflowFacadeService {
+    private static final Logger logger = LogManager.getLogger();
+
     @Autowired
     private RuntimeService runtimeService;
 
@@ -75,6 +79,9 @@ public class WorkflowFacadeService {
     private IdentityService identityService;
 
     @Autowired
+    private ManagementService managementService;
+
+    @Autowired
     private WorkFlowDAO workFlowDAO;
 
     @Autowired
@@ -82,41 +89,6 @@ public class WorkflowFacadeService {
 
     @Autowired
     private ProcessEngineConfiguration processEngineConfiguration;
-
-    /**
-     * 根据 process key 启动工作流
-     *
-     * @param processName
-     * @return
-     */
-    public ProcessInstance startProcess(String processName) {
-        return runtimeService.startProcessInstanceByKey(processName);
-    }
-
-    public ProcessInstance startProcess(String processName,String businessKey){
-        return runtimeService.startProcessInstanceByKey(processName,businessKey);
-    }
-
-    /**
-     * 根据 process key 启动工作流 , 带启动参数
-     *
-     * @param processName
-     * @param variables
-     * @return
-     */
-    public ProcessInstance startProcess(String processName, Map<String, Object> variables) {
-        return runtimeService.startProcessInstanceByKey(processName, variables);
-    }
-
-
-    /**
-     * 删除流程
-     * @param procInstId
-     * @param reason
-     */
-    public void delProcessInstance(String procInstId, String reason){
-        runtimeService.deleteProcessInstance(procInstId,reason);
-    }
 
     public void deploy(String wfKey) {
         String resourcePath = PropertiesUtil.getString(wfKey);
@@ -131,6 +103,10 @@ public class WorkflowFacadeService {
      */
     public List<Task> findTaskByUserId(String userId) {
         return taskService.createTaskQuery().taskCandidateOrAssigned(userId).list();
+    }
+
+    public Task findTask(String taskId){
+        return taskService.createTaskQuery().taskId(taskId).singleResult();
     }
 
     /**
@@ -154,6 +130,10 @@ public class WorkflowFacadeService {
         return workflowInfoList;
     }
 
+    public ProcessInstance findProcessInstance(String procInst){
+        return runtimeService.createProcessInstanceQuery().processInstanceId(procInst).singleResult();
+    }
+
     /**
      * 查看流程定义图片
      *
@@ -166,15 +146,15 @@ public class WorkflowFacadeService {
         return in;
     }
 
+    /**
+     * 获取流程跟踪图
+     * @param procInstId
+     * @return
+     */
     public InputStream getWorkFlowProgressImage(String procInstId){
         //  获取历史流程实例
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
                 .processInstanceId(procInstId).singleResult();
-
-        // 获取流程定义
-        ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) repositoryService.createProcessDefinitionQuery()
-                .processDefinitionId(historicProcessInstance.getProcessDefinitionId()).singleResult();
-
 
         // 获取流程历史中已执行节点，并按照节点在流程中执行先后顺序排序
         List<HistoricActivityInstance> historicActivityInstanceList = historyService.createHistoricActivityInstanceQuery()
@@ -183,11 +163,10 @@ public class WorkflowFacadeService {
         // 已执行的节点ID集合
         List<String> executedActivityIdList = new ArrayList<String>();
         int index = 1;
-        //logger.info("获取已经执行的节点ID");
         for (HistoricActivityInstance activityInstance : historicActivityInstanceList) {
             executedActivityIdList.add(activityInstance.getActivityId());
 
-            //logger.info("第[" + index + "]个已执行节点=" + activityInstance.getActivityId() + " : " +activityInstance.getActivityName());
+            logger.debug("第[" + index + "]个已执行节点=" + activityInstance.getActivityId() + " : " +activityInstance.getActivityName());
             index++;
         }
         BpmnModel bpmnModel = repositoryService.getBpmnModel(historicProcessInstance.getProcessDefinitionId());
@@ -218,7 +197,7 @@ public class WorkflowFacadeService {
     }
 
     /**
-     * 根据Key查找工作流基本信息
+     * 根据Key查找工作流定义信息
      *
      * @param wfKey
      * @return
@@ -229,15 +208,20 @@ public class WorkflowFacadeService {
     }
 
     /**
-     * 根据Id查找工作流基本信息
-     * @param procDefId
+     * 根据流程定义Id查看流程定义信息
+     * @param processDefinitionId
      * @return
      */
-    public WorkflowInfo getWorkFlowInfoById(String procDefId){
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(procDefId).singleResult();
+    public WorkflowInfo getWorkFlowInfoById(String processDefinitionId){
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
         return convertProcessDefinition2WorkflowInfo(processDefinition);
     }
 
+    /**
+     * 流程定义基本信息转换
+     * @param processDefinition
+     * @return
+     */
     private WorkflowInfo convertProcessDefinition2WorkflowInfo(ProcessDefinition processDefinition){
         if(processDefinition == null){
             return null;
@@ -250,7 +234,6 @@ public class WorkflowFacadeService {
                 .resourceName(StringUtil.getFilename(processDefinition.getResourceName()))
                 .resourcePng(StringUtil.getFilename(processDefinition.getDiagramResourceName()))
                 .build();
-
     }
 
     /**
@@ -259,7 +242,7 @@ public class WorkflowFacadeService {
      * @return
      */
     public List<WorkflowInfo> getHistoricWorkFlows(boolean finished) {
-        List<HistoricProcessInstance> processInstances = new ArrayList<>();
+        List<HistoricProcessInstance> processInstances;
         HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
         if(finished){
             processInstances = query.finished().orderByProcessInstanceId().asc().list();
@@ -272,7 +255,8 @@ public class WorkflowFacadeService {
                     .name(i.getProcessDefinitionName())
                     .startTime(i.getStartTime())
                     .endTime(i.getEndTime())
-                    .key(i.getProcessDefinitionKey());
+                    .key(i.getProcessDefinitionKey())
+                    .businessKey(i.getBusinessKey());
             if(i.getDurationInMillis() != null){
                 builder.duration(i.getDurationInMillis() / 1000);
             }
@@ -389,17 +373,38 @@ public class WorkflowFacadeService {
     /**
      * 查看流程实例是否结束
      *
-     * @param procId
+     * @param procInstId
      * @return
      */
-    public Boolean isFinished(String procId) {
-        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(procId).singleResult();
-        if (pi == null) {
-            System.out.println("流程结束");
+    public Boolean isFinished(String procInstId) {
+        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(procInstId).singleResult();
+        if (pi == null || pi.isEnded()) {
+            logger.debug("流程已经结束");
             return true;
         }
-        System.out.println("流程没有结束");
+        logger.debug("流程没有结束");
         return false;
+    }
+
+    /**
+     * 获取流程状态
+     * @param procInstId
+     * @return
+     */
+    public WorkFlowState getWorkFlowState(String procInstId){
+        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(procInstId).singleResult();
+
+        if(pi != null && pi.isSuspended()){
+            return WorkFlowState.Suspended;
+        }
+        if(pi != null && pi.isEnded()){
+            return WorkFlowState.Finished;
+        }
+        Job deadLetterJob = managementService.createDeadLetterJobQuery().processInstanceId(procInstId).singleResult();
+        if(deadLetterJob != null){
+            return WorkFlowState.DeadLetter;
+        }
+        return WorkFlowState.UnderWay;
     }
 
     /**
@@ -426,40 +431,12 @@ public class WorkflowFacadeService {
     }
 
     /**
-     * 查询历史流程实例
-     *
-     * @param procId
-     */
-    public void queryHistoryProcessInstance(String procId) {
-        List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery()
-                .processInstanceId(procId).list();
-
-    }
-
-    /**
-     * 查询历史活动
-     */
-    public void queryHistoryActiviti(String procId) {
-        historyService.createHistoricActivityInstanceQuery()
-                .processInstanceId(procId)
-                .orderByHistoricActivityInstanceStartTime()
-                .asc()
-                .list();
-    }
-
-    /**
      * 查询[任务/流程]变量
      */
     public <T> T queryProcessVariable(String executionId,String variableName) {
         return (T) runtimeService.getVariable(executionId,variableName); //执行对象id和流程变量名称获取变量值
 //        runtimeService.getVariables(executionId); 获取所有的流程变量
 //        runtimeService.getVariables(executionId,variableNames); 使用执行对象ID，通过设置流程变量的名称存放在集合中，获取指定变量名称的值
-    }
-
-    public void setProcessVariable(String executionId) {
-//        runtimeService.setVariable(executionId,variableName,value);//执行对象id，流程变量名称，流程变量的值 一次只能设置一个
-//        runtimeService.setVariables(executionId,Map<>); // 执行对象id和map集合设置流程变量
-//        runtimeService.setVariableLocal(executionId,variableName,value);  //与任务id绑定
     }
 
     /**
